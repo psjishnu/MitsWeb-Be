@@ -62,18 +62,19 @@ router.post("/signup", validateRegistration, (req, res) => {
 });
 
 //signin route
-router.post("/signin", validateLogin, (req, res) => {
+router.post("/signin", validateLogin, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res
       .status(422)
       .json({ success: false, error: "Please add email and password" });
   }
-  User.findOne({ email: email }).then((savedUser) => {
+  await User.findOne({ email: email }).then((savedUser) => {
     if (!savedUser) {
-      return res
-        .status(422)
-        .json({ error: "Invalid email or password!!", success: false });
+      return res.json({
+        error: "Invalid email or password!!",
+        success: false,
+      });
     }
     bcrypt
       .compare(password, savedUser.password)
@@ -85,7 +86,7 @@ router.post("/signin", validateLogin, (req, res) => {
           });
           const { _id, name, email, pic } = savedUser;
           console.log("logged in");
-          res.header("mitsweb-auth-token", token).json({
+          res.header("mitsweb-access-token", token).json({
             token,
             success: true,
             user: { _id, name, pic },
