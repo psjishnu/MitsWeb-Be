@@ -45,7 +45,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 //use the auth router
-app.use("/api/user/auth", require("./app/abc/auth"));
+app.use("/api/user/auth", require("./app/routes/auth"));
 
 //server listening on port
 app.listen(PORT, () => console.log(`MITS Web backend running on port ${PORT}`));

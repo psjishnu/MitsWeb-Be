@@ -1,22 +1,22 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
-const User = mongoose.model('User');
-const jwt = require('jsonwebtoken');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const User = mongoose.model("User");
+const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 // const requireLogin = require('../middlewares/requireLogin');
 
-router.get('/', (req, res) => {
-  res.send('Welcome to MITS Web User Authentication!!');
+router.get("/", (req, res) => {
+  res.send("Welcome to MITS Web User Authentication!!");
 });
 
 //signup route
-router.post('/signup', (req, res) => {
+router.post("/signup", (req, res) => {
   const { name, email, password, pic } = req.body;
-  console.log('User sign in request:', name, email, password);
+  console.log("User sign in request:", name, email, password);
   if (!email || !password || !name) {
-    return res.status(422).json({ error: 'Please fill all fields' });
+    return res.status(422).json({ error: "Please fill all fields" });
   }
   //check if the user with that mail already exists
   User.findOne({ email: email })
@@ -24,7 +24,7 @@ router.post('/signup', (req, res) => {
       if (savedUser) {
         return res
           .status(422)
-          .json({ error: 'User with that email already exists!!' });
+          .json({ error: "User with that email already exists!!" });
       }
       bcrypt.hash(password, 12).then((hashedPassword) => {
         const user = new User({
@@ -37,8 +37,8 @@ router.post('/signup', (req, res) => {
           .save()
           .then((user) => {
             res.json({
-              message: 'User created and stored successfully!!',
-              token: 'hello this is the test token',
+              message: "User created and stored successfully!!",
+              token: "hello this is the test token",
             });
           })
           .catch((err) => {
@@ -52,14 +52,14 @@ router.post('/signup', (req, res) => {
 });
 
 //signin route
-router.post('/signin', (req, res) => {
+router.post("/signin", (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(422).json({ error: 'Please add email and password' });
+    return res.status(422).json({ error: "Please add email and password" });
   }
   User.findOne({ email: email }).then((savedUser) => {
     if (!savedUser) {
-      return res.status(422).json({ error: 'Invalid email or password!!' });
+      return res.status(422).json({ error: "Invalid email or password!!" });
     }
     bcrypt
       .compare(password, savedUser.password)
@@ -73,7 +73,7 @@ router.post('/signin', (req, res) => {
             user: { _id, name, pic },
           });
         } else {
-          return res.status(422).json({ error: 'Invalid email or password!!' });
+          return res.status(422).json({ error: "Invalid email or password!!" });
         }
       })
       .catch((err) => {
