@@ -17,7 +17,7 @@ router.get("/", (req, res) => {
 
 //signup route
 router.post("/signup", validateRegistration, (req, res) => {
-  const { name, email, password, confirm, number } = req.body;
+  const { name, email, password, confirm, mobile } = req.body;
   console.log("User sign in request:", name, email, password);
   if (!email || !password || !name) {
     return res
@@ -41,7 +41,8 @@ router.post("/signup", validateRegistration, (req, res) => {
           email,
           password: hashedPassword,
           name,
-          mobile: number,
+          mobile,
+          pic,
         });
         user
           .save()

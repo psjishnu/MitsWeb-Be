@@ -1,0 +1,121 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API Documentation for the MITS WEB Platform",
+    "description": "API structure of all the apis used in platform can be found here!",
+    "version": "1.0.0"
+  },
+  "basePath": "/",
+  "host": "localhost:2310",
+  "schemes": ["http", "https"],
+  "consumes": ["application/json"],
+  "produces": ["application/json"],
+  "servers": [
+    {
+      "url": "http://localhost:2310"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication"
+    }
+  ],
+  "paths": {
+    "/auth/signin": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "Takes a set of user credentials and returns an access and refresh JSON web token pair to prove the authentication of those credentials.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Signin"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {}
+          }
+        },
+        "x-codegen-request-body-name": "data"
+      }
+    },
+
+    "/auth/signup": {
+      "post": {
+        "tags": ["Authentication"],
+        "description": "Register the new user.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Signup"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User Created Successfully",
+            "content": {}
+          }
+        },
+
+        "x-codegen-request-body-name": "data"
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Signin": {
+        "required": ["email", "name", "password", "mobile"],
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "Signup": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          },
+          "confirm": {
+            "type": "string"
+          },
+          "mobile": {
+            "type": "string",
+            "default": "8129210496"
+          },
+          "pic": {
+            "type": "string",
+            "default": "https://www.poutstation.com/upload/photos/avatar.jpg"
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "api_key": {
+        "type": "apiKey",
+        "name": "x-access-token",
+        "in": "header"
+      }
+    }
+  }
+}
