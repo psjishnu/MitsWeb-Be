@@ -4,9 +4,10 @@ const bcrypt = require("bcryptjs");
 const { auth } = require("../functions/jwt");
 const User = require("../models/user.model");
 const { validateUpdate } = require("./validation/user.validation");
+
 router.get("/getUser", auth, async (req, res) => {
   const currentUser = await User.findOne({ _id: req.user._id });
-  console.log("Logging in as ", currentUser.email);
+  console.log("User retrieved ", currentUser.email);
   res.json({ data: currentUser, success: true });
 });
 

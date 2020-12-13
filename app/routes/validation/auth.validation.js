@@ -14,6 +14,8 @@ let loginScheme = Joi.object({
   password: Joi.string().required(),
 });
 
+const googleScheme = Joi.object({ googleToken: Joi.string().required() });
+
 const validateRegistration = (req, res, next) => {
   const { error, value } = signupScheme.validate(req.body);
   error ? res.json({ msg: error, success: false }) : next();
@@ -24,7 +26,13 @@ const validateLogin = (req, res, next) => {
   error ? res.json({ msg: error, success: false }) : next();
 };
 
+const validateGooglelogin = (req, res, next) => {
+  const { error, value } = googleScheme.validate(req.body);
+  error ? res.json({ msg: error, success: false }) : next();
+};
+
 module.exports = {
   validateRegistration,
   validateLogin,
+  validateGooglelogin,
 };

@@ -10,6 +10,7 @@ const AuthValidator = require("google-auth-library");
 const {
   validateRegistration,
   validateLogin,
+  validateGooglelogin,
 } = require("./validation/auth.validation");
 // const requireLogin = require('../middlewares/requireLogin');
 
@@ -104,7 +105,7 @@ router.post("/signin", validateLogin, async (req, res) => {
   });
 });
 
-router.post("/googlelogin", async (req, resp) => {
+router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
   const tokenVerifier = async (token) => {
     const verify = async () => {
       const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
