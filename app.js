@@ -25,9 +25,6 @@ mongoose.connection.on("error", (err) => {
   console.log("error connecting to database " + err);
 });
 
-//require the user model
-require("./app/models/user");
-
 //allow cross origin requests
 app.use(cors());
 
@@ -44,8 +41,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+//import routes
+
+const authRouter = require("./app/routes/auth.router");
+const testRouter = require("./app/routes/test.router");
 //use the auth router
-app.use("/api/user/auth", require("./app/routes/auth"));
+
+app.use("/", authRouter);
+app.use("/test", testRouter);
 
 //server listening on port
 app.listen(PORT, () => console.log(`MITS Web backend running on port ${PORT}`));

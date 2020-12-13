@@ -2,17 +2,21 @@ const express = require("express");
 const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const User = mongoose.model("User");
+const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
+const {
+  validateRegistration,
+  validateLogin,
+} = require("./validation/auth.validation");
 // const requireLogin = require('../middlewares/requireLogin');
 
 router.get("/", (req, res) => {
-  res.send("Welcome to MITS Web User Authentication!!");
+  res.json({ msg: "Welcome to MITS Web User Authentication!!" });
 });
 
 //signup route
-router.post("/signup", (req, res) => {
+router.post("/signup", validateRegistration, (req, res) => {
   const { name, email, password, pic } = req.body;
   console.log("User sign in request:", name, email, password);
   if (!email || !password || !name) {
@@ -52,7 +56,7 @@ router.post("/signup", (req, res) => {
 });
 
 //signin route
-router.post("/signin", (req, res) => {
+router.post("/signin", validateLogin, (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(422).json({ error: "Please add email and password" });
