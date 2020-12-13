@@ -44,11 +44,11 @@ app.use(express.static(path.join(__dirname, "public")));
 //import routes
 
 const authRouter = require("./app/routes/auth.router");
-const testRouter = require("./app/routes/test.router");
+const userRouter = require("./app/routes/user.router");
 //use the auth router
 
 app.use("/", authRouter);
-app.use("/test", testRouter);
+app.use("/user", userRouter);
 
 //server listening on port
 app.listen(PORT, () => console.log(`MITS Web backend running on port ${PORT}`));

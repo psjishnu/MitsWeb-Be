@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { number } = require("joi");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -11,6 +12,10 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
+    required: true,
+  },
+  mobile: {
+    type: Number,
     required: true,
   },
   pic: {

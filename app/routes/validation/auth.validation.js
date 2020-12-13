@@ -4,7 +4,8 @@ let signupScheme = Joi.object({
   email: Joi.string().email().required(),
   name: Joi.string().required(),
   password: Joi.string().required(),
-  pic: Joi.string(),
+  confirm: Joi.string().required(),
+  number: Joi.number().required(),
 });
 
 let loginScheme = Joi.object({
@@ -14,12 +15,12 @@ let loginScheme = Joi.object({
 
 const validateRegistration = (req, res, next) => {
   const { error, value } = signupScheme.validate(req.body);
-  error ? res.json({ msg: error }) : next();
+  error ? res.json({ msg: error, success: false }) : next();
 };
 
 const validateLogin = (req, res, next) => {
   const { error, value } = loginScheme.validate(req.body);
-  error ? res.json({ msg: error }) : next();
+  error ? res.json({ msg: error, success: false }) : next();
 };
 
 module.exports = {

@@ -12,37 +12,43 @@ const {
 // const requireLogin = require('../middlewares/requireLogin');
 
 router.get("/", (req, res) => {
-  res.json({ msg: "Welcome to MITS Web User Authentication!!" });
+  res.json({ msg: "Welcome to MITS Web User Authentication!!", success: true });
 });
 
 //signup route
 router.post("/signup", validateRegistration, (req, res) => {
-  const { name, email, password, pic } = req.body;
+  const { name, email, password, confirm, number } = req.body;
   console.log("User sign in request:", name, email, password);
   if (!email || !password || !name) {
-    return res.status(422).json({ error: "Please fill all fields" });
+    return res
+      .status(422)
+      .json({ error: "Please fill all fields", success: false });
+  }
+  if (password !== confirm) {
+    return res.status(422).json({ error: "Password not same", success: false });
   }
   //check if the user with that mail already exists
   User.findOne({ email: email })
     .then((savedUser) => {
       if (savedUser) {
-        return res
-          .status(422)
-          .json({ error: "User with that email already exists!!" });
+        return res.status(422).json({
+          error: "User with that email already exists!!",
+          success: false,
+        });
       }
       bcrypt.hash(password, 12).then((hashedPassword) => {
         const user = new User({
           email,
           password: hashedPassword,
           name,
-          pic,
+          mobile: number,
         });
         user
           .save()
           .then((user) => {
             res.json({
+              success: true,
               message: "User created and stored successfully!!",
-              token: "hello this is the test token",
             });
           })
           .catch((err) => {
@@ -59,25 +65,35 @@ router.post("/signup", validateRegistration, (req, res) => {
 router.post("/signin", validateLogin, (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
-    return res.status(422).json({ error: "Please add email and password" });
+    return res
+      .status(422)
+      .json({ success: false, error: "Please add email and password" });
   }
   User.findOne({ email: email }).then((savedUser) => {
     if (!savedUser) {
-      return res.status(422).json({ error: "Invalid email or password!!" });
+      return res
+        .status(422)
+        .json({ error: "Invalid email or password!!", success: false });
     }
     bcrypt
       .compare(password, savedUser.password)
       .then((doMatch) => {
         if (doMatch) {
           // res.json({message:"successfully signed in"})
-          const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET);
+          const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET, {
+            expiresIn: "24h",
+          });
           const { _id, name, email, pic } = savedUser;
-          res.json({
+          console.log("logged in");
+          res.header("mitsweb-auth-token", token).json({
             token,
+            success: true,
             user: { _id, name, pic },
           });
         } else {
-          return res.status(422).json({ error: "Invalid email or password!!" });
+          return res
+            .status(422)
+            .json({ success: false, error: "Invalid email or password!!" });
         }
       })
       .catch((err) => {
