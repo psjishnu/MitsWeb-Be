@@ -2,11 +2,15 @@ require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const app = express();
+
 const bodyParser = require("body-parser");
 const PORT = process.env.PORT || 3000;
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
+
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 
 // connect to database
 mongoose.connect(process.env.MONGOURI, {
@@ -45,9 +49,12 @@ app.use(express.static(path.join(__dirname, "public")));
 
 const authRouter = require("./app/routes/auth.router");
 const userRouter = require("./app/routes/user.router");
-//use the auth router
 
-app.use("/", authRouter);
+app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+//use the auth router
+app.use("/auth", authRouter);
+
 app.use("/user", userRouter);
 
 //server listening on port
