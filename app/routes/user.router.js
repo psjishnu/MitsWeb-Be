@@ -6,7 +6,7 @@ const User = require("../models/user.model");
 const { validateUpdate } = require("./validation/user.validation");
 router.get("/getUser", auth, async (req, res) => {
   const currentUser = await User.findOne({ _id: req.user._id });
-  currentUser.type = "owner";
+  console.log("Logging in as ", currentUser.email);
   res.json({ data: currentUser, success: true });
 });
 

@@ -5,6 +5,8 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
+const AuthValidator = require("google-auth-library");
+
 const {
   validateRegistration,
   validateLogin,
@@ -16,9 +18,8 @@ router.get("/", (req, res) => {
 });
 
 //signup route
-router.post("/signup", validateRegistration, (req, res) => {
-  const { name, email, password, confirm, number } = req.body;
-  console.log("User sign in request:", name, email, password);
+router.post("/signup", validateRegistration, async (req, res) => {
+  const { name, email, password, confirm, number, type } = req.body;
   if (!email || !password || !name) {
     return res
       .status(422)
@@ -28,10 +29,10 @@ router.post("/signup", validateRegistration, (req, res) => {
     return res.status(422).json({ error: "Password not same", success: false });
   }
   //check if the user with that mail already exists
-  User.findOne({ email: email })
+  await User.findOne({ email: email })
     .then((savedUser) => {
       if (savedUser) {
-        return res.status(422).json({
+        return res.json({
           error: "User with that email already exists!!",
           success: false,
         });
@@ -41,6 +42,7 @@ router.post("/signup", validateRegistration, (req, res) => {
           email,
           password: hashedPassword,
           name,
+          type,
           mobile: number,
         });
         user
@@ -85,7 +87,6 @@ router.post("/signin", validateLogin, async (req, res) => {
             expiresIn: "24h",
           });
           const { _id, name, email, pic } = savedUser;
-          console.log("logged in");
           res.header("mitsweb-access-token", token).json({
             token,
             success: true,
@@ -101,6 +102,70 @@ router.post("/signin", validateLogin, async (req, res) => {
         console.log(err);
       });
   });
+});
+
+router.post("/googlelogin", async (req, resp) => {
+  console.log(req.body.googleToken);
+
+  const tokenVerifier = async (token) => {
+    const verify = async () => {
+      const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+      const client = new AuthValidator.OAuth2Client(CLIENT_ID);
+      const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: CLIENT_ID,
+      });
+      const payload = ticket.getPayload();
+      return payload;
+    };
+    return verify().catch(console.error);
+  };
+
+  await tokenVerifier(req.body.googleToken).then(async (res) => {
+    const user = await User.findOne({
+      email: res.email,
+    });
+    console.log(user);
+    if (user) {
+      console.log("old");
+      user.photo = res.picture;
+      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+        expiresIn: "24h",
+      });
+      const { _id, name, email, pic } = user;
+      resp.json({
+        token,
+        success: true,
+        user: { _id, name, pic, email },
+      });
+    } else {
+      console.log("new");
+      const userNew = new User({
+        name: res.name,
+        email: res.email,
+        pic: res.picture,
+        type: "student",
+        password: await bcrypt.hash(
+          (Math.random() * Math.random()).toString(),
+          10
+        ),
+      });
+      await userNew.save().then((newres) => {
+        const token = jwt.sign({ _id: newres._id }, JWT_SECRET, {
+          expiresIn: "24h",
+        });
+        const { _id, name, email, pic } = newres;
+        resp.json({
+          token,
+          success: true,
+          user: { _id, name, pic, email },
+        });
+      });
+    }
+    // console.log(returnData);
+  });
+
+  //return resp.json({ msg: "ok" });
 });
 
 module.exports = router;

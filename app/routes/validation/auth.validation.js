@@ -5,6 +5,7 @@ let signupScheme = Joi.object({
   name: Joi.string().required(),
   password: Joi.string().required(),
   confirm: Joi.string().required(),
+  type: Joi.string().required(),
   number: Joi.number().required(),
 });
 

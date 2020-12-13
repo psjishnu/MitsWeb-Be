@@ -16,6 +16,10 @@ const userSchema = new mongoose.Schema({
   },
   mobile: {
     type: Number,
+    required: false,
+  },
+  type: {
+    type: String,
     required: true,
   },
   pic: {
