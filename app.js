@@ -25,21 +25,27 @@ mongoose.connection.on('error', (err) => {
   console.log('error connecting to database ' + err);
 });
 
+//require the user model
+require('./app/models/user');
+
+//allow cross origin requests
+app.use(cors());
+
 // view engine setup
 app.set('views', path.join(__dirname, 'public'));
 app.set('view engine', 'ejs');
 
 //default code of expressjs generator
 
+//to parse the incoming requests to json
 app.use(express.json());
+
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//importing routes
+//use the auth router
+app.use('/api/user/auth', require('./app/Routes/auth'));
 
-const indexRouter = require('./app/modules/index');
-
-app.use('/', indexRouter);
-
+//server listening on port
 app.listen(PORT, () => console.log(`MITS Web backend running on port ${PORT}`));
