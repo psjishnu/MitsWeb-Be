@@ -99,7 +99,7 @@
           "confirm": {
             "type": "string"
           },
-          "mobile": {
+          "number": {
             "type": "string",
             "default": "8129210496"
           },

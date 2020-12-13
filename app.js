@@ -1,8 +1,8 @@
 require("dotenv").config();
 const express = require("express");
+const router = express.Router();
 const path = require("path");
 const app = express();
-
 const bodyParser = require("body-parser");
 const PORT = process.env.PORT || 3000;
 const cookieParser = require("cookie-parser");
@@ -45,6 +45,14 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+// response for get('/')
+
+app.use(router);
+
+router.get("/", (req, res) => {
+  res.render("index");
+});
+
 //import routes
 
 const authRouter = require("./app/routes/auth.router");
@@ -52,7 +60,8 @@ const userRouter = require("./app/routes/user.router");
 
 app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-//use the auth router
+//use the  routes
+
 app.use("/auth", authRouter);
 
 app.use("/user", userRouter);

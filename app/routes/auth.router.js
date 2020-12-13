@@ -105,8 +105,6 @@ router.post("/signin", validateLogin, async (req, res) => {
 });
 
 router.post("/googlelogin", async (req, resp) => {
-  console.log(req.body.googleToken);
-
   const tokenVerifier = async (token) => {
     const verify = async () => {
       const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
@@ -125,7 +123,6 @@ router.post("/googlelogin", async (req, resp) => {
     const user = await User.findOne({
       email: res.email,
     });
-    console.log(user);
     if (user) {
       console.log("old");
       user.photo = res.picture;
