@@ -5,6 +5,10 @@ let updateScheme = Joi.object({
   password: Joi.any(),
   confirm: Joi.any(),
   number: Joi.number().required(),
+  parentDetails: Joi.object().required(),
+  address: Joi.string().required(),
+  dob: Joi.string().required(),
+  bloodGroup: Joi.string().required(),
 });
 
 const validateUpdate = (req, res, next) => {

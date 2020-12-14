@@ -21,6 +21,10 @@ router.post("/updateuser", validateUpdate, auth, async (req, res) => {
     if (user) {
       user.name = data.name;
       user.mobile = data.number;
+      user.parentDetails = data.parentDetails;
+      user.address = data.address;
+      user.dob = data.dob;
+      user.bloodGroup = data.bloodGroup;
       if (data.password !== "") {
         if (data.password !== data.confirm) {
           Error = true;

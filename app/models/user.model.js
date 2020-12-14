@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { number } = require("joi");
+const { number, any } = require("joi");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -25,6 +25,22 @@ const userSchema = new mongoose.Schema({
   pic: {
     type: String,
     default: "https://www.poutstation.com/upload/photos/avatar.jpg",
+  },
+  address: {
+    type: String,
+    require: false,
+  },
+  parentDetails: {
+    type: Object,
+    required: false,
+  },
+  dob: {
+    type: String,
+    required: false,
+  },
+  bloodGroup: {
+    type: String,
+    required: false,
   },
 });
 
