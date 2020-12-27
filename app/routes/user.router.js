@@ -10,7 +10,7 @@ router.get("/getUser", auth, async (req, res) => {
   console.log("User retrieved ", currentUser.email);
   res.json({ data: currentUser, success: true });
 });
-
+//api used for updating user
 router.post("/updateuser", validateUpdate, auth, async (req, res) => {
   try {
     const user = await User.findOne({ _id: req.user._id });
