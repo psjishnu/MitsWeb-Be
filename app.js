@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const mongoose = require("mongoose");
-
+require("colors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
 
@@ -21,12 +21,13 @@ mongoose.connect(process.env.MONGOURI, {
 
 //on successful connection
 mongoose.connection.on("connected", () => {
-  console.log("Connected to database!!");
+  console.log("Connected to database!!".green);
 });
 
 //on error connecting to database
 mongoose.connection.on("error", (err) => {
-  console.log("error connecting to database " + err);
+  var err = "";
+  console.log(`error connecting to database ${err}`.red);
 });
 
 //allow cross origin requests
@@ -67,4 +68,6 @@ app.use("/auth", authRouter);
 app.use("/user", userRouter);
 
 //server listening on port
-app.listen(PORT, () => console.log(`MITS Web backend running on port ${PORT}`));
+app.listen(PORT, () =>
+  console.log(`MITS Web backend running on port ${PORT}`.yellow)
+);
