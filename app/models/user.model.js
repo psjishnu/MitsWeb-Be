@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { number, any } = require("joi");
+const { number, any, boolean } = require("joi");
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -21,6 +21,16 @@ const userSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
+  },
+  active: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  registered: {
+    type: Boolean,
+    required: false,
+    default: false,
   },
   pic: {
     type: String,
