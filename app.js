@@ -26,7 +26,6 @@ mongoose.connection.on("connected", () => {
 
 //on error connecting to database
 mongoose.connection.on("error", (err) => {
-  var err = "";
   console.log(`error connecting to database ${err}`.red);
 });
 
@@ -55,19 +54,19 @@ router.get("/", (req, res) => {
 });
 
 //import routes
-
+const adminRouter = require("./app/routes/admin.router");
 const authRouter = require("./app/routes/auth.router");
 const userRouter = require("./app/routes/user.router");
 
 app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //use the  routes
-
+app.use("/admin", adminRouter);
 app.use("/auth", authRouter);
-
 app.use("/user", userRouter);
 
 //server listening on port
-app.listen(PORT, () =>
-  console.log(`MITS Web backend running on port ${PORT}`.yellow)
-);
+app.listen(PORT, () => {
+  console.clear();
+  console.log(`MITS Web backend running on port ${PORT}`.yellow);
+});

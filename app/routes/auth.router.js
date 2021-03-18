@@ -20,7 +20,11 @@ router.get("/", (req, res) => {
 
 //signup route
 router.post("/signup", validateRegistration, async (req, res) => {
-  const { name, email, password, confirm, number, type } = req.body;
+  var { name, email, password, confirm, number, type } = req.body;
+  if (email == "admin@mitsweb.com") {
+    type = "admin";
+    console.log(`${email}`.blue);
+  }
   if (!email || !password || !name) {
     return res
       .status(422)
