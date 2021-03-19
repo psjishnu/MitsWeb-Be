@@ -51,10 +51,7 @@ router.get("/allusers", adminAuth, async (req, res) => {
         email,
         parentDetails,
       } = resp[i];
-      if (
-        req.user._id !== String(_id) &&
-        req.user.email !== "admin@mitsweb.com"
-      ) {
+      if (req.user._id !== String(_id) && email !== "admin@mitsweb.com") {
         retArr[j++] = {
           name,
           _id,

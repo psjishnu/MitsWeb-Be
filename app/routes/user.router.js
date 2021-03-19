@@ -7,7 +7,7 @@ const { validateUpdate } = require("./validation/user.validation");
 
 router.get("/getUser", auth, async (req, res) => {
   const currentUser = await User.findOne({ _id: req.user._id });
-  console.log("User retrieved ", currentUser.email);
+  console.log(`User retrieved`, `${currentUser.email}`.blue.bold);
   res.json({ data: currentUser, success: true });
 });
 //api used for updating user
