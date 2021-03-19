@@ -11,6 +11,12 @@ let updateSchema = Joi.object({
 let deleteSchema = Joi.object({
   deleteId: Joi.string().required(),
 });
+
+let addUserSchema = Joi.object({
+  email: Joi.string().required(),
+  type: Joi.string().required(),
+});
+
 const validateDeletion = (req, res, next) => {
   const { error, value } = deleteSchema.validate(req.body);
   error ? res.json({ msg: error, success: false }) : next();
@@ -21,7 +27,13 @@ const validateUpdation = (req, res, next) => {
   error ? res.json({ msg: error, success: false }) : next();
 };
 
+const validateAddUser = (req, res, next) => {
+  const { error, value } = addUserSchema.validate(req.body);
+  error ? res.json({ msg: error, success: false }) : next();
+};
+
 module.exports = {
   validateUpdation,
   validateDeletion,
+  validateAddUser,
 };
