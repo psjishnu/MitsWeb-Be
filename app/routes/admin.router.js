@@ -3,8 +3,12 @@ const router = express.Router();
 const User = require("../models/user.model");
 const { adminAuth } = require("../functions/jwt");
 const e = require("express");
+const {
+  validateUpdation,
+  validateDeletion,
+} = require("./validation/admin.validation");
 
-router.post("/deleteuser", adminAuth, async (req, res) => {
+router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
   const idUser = await User.findOne({ _id: req.body.deleteId });
   if (!idUser) {
     res.json({ success: false, msg: "invlid id" });
@@ -14,7 +18,7 @@ router.post("/deleteuser", adminAuth, async (req, res) => {
   }
 });
 
-router.post("/updateuser", adminAuth, async (req, res) => {
+router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
   const idUser = await User.findOne({ _id: req.body.id });
   if (!idUser) {
     res.json({ success: false, msg: "invalid id" });
