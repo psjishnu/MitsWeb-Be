@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
     required: false,
     default: false,
   },
-  pic: {
+  photo: {
     type: String,
     default: "https://www.poutstation.com/upload/photos/avatar.jpg",
   },

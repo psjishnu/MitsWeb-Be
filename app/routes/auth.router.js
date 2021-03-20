@@ -116,7 +116,7 @@ router.post("/signin", validateLogin, async (req, res) => {
     }
     if (savedUser && !savedUser.active) {
       return res.json({
-        msg: "Your account is not active!!",
+        msg: "Your account is diabled by admin!!",
         success: false,
       });
     }
@@ -128,11 +128,11 @@ router.post("/signin", validateLogin, async (req, res) => {
           const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET, {
             expiresIn: "24h",
           });
-          const { _id, name, email, pic } = savedUser;
+          const { _id, name, email, photo } = savedUser;
           return res.header("mitsweb-access-token", token).json({
             token,
             success: true,
-            user: { _id, name, pic },
+            user: { _id, name, photo },
           });
         } else {
           return res
@@ -178,11 +178,11 @@ router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "24h",
       });
-      const { _id, name, email, pic } = userNow;
+      const { _id, name, email, photo } = userNow;
       resp.json({
         token,
         success: true,
-        user: { _id, name, pic, email },
+        user: { _id, name, photo, email },
       });
     } else {
       resp.json({

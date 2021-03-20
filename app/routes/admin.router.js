@@ -30,6 +30,7 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
       idUser.type = userType;
     }
     idUser.name = req.body.name;
+    idUser.active = req.body.active;
     idUser.mobile = req.body.mobile;
     const result = await idUser.save();
     res.json({ success: true, msg: result });
@@ -86,6 +87,7 @@ router.get("/allusers", adminAuth, async (req, res) => {
         dob,
         email,
         parentDetails,
+        active,
       } = resp[i];
       if (req.user._id !== String(_id) && email !== "admin@mitsweb.com") {
         retArr[j++] = {
@@ -99,6 +101,7 @@ router.get("/allusers", adminAuth, async (req, res) => {
           dob,
           email,
           parentDetails,
+          active,
         };
       }
     }
