@@ -7,6 +7,7 @@ const { auth } = require("./../functions/jwt");
 //create a gate pass request
 router.post("/request", auth, async (req, res) => {
   try {
+    console.log(req.body);
     const { onDate, onTime, description } = req.body;
     if (!onDate || !onTime || !description) {
       return res.status(422).json({ error: "please fill all fields!!" });
@@ -20,18 +21,11 @@ router.post("/request", auth, async (req, res) => {
       description,
       requestBy: req.user,
     });
-    gatePass
-      .save()
-      .then((result) => {
-        res.json({ result });
-      })
-      .catch((err) => {
-        console.log(err);
-        return res.json({
-          success: false,
-          message: "Something went wrong..! Couldn't save gatepass request.",
-        });
-      });
+    await gatePass.save();
+    return res.json({
+      message: "gate pass requested successfully",
+      success: true,
+    });
   } catch (e) {
     return res.json({
       success: false,
