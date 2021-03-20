@@ -4,6 +4,7 @@ let signupScheme = Joi.object({
   email: Joi.string().email().required(),
   name: Joi.string().required(),
   password: Joi.string().required(),
+  oldpassword: Joi.string().required(),
   confirm: Joi.string().required(),
   type: Joi.string().required(),
   number: Joi.number().required(),

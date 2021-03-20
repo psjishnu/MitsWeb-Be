@@ -20,48 +20,77 @@ router.get("/", (req, res) => {
 
 //signup route
 router.post("/signup", validateRegistration, async (req, res) => {
-  var { name, email, password, confirm, number, type } = req.body;
-  if (email == "admin@mitsweb.com") {
-    type = "admin";
-    console.log(`${email}`.blue);
-  }
-  if (!email || !password || !name) {
-    return res
-      .status(422)
-      .json({ error: "Please fill all fields", success: false });
-  }
+  var { name, email, password, confirm, number, type, oldpassword } = req.body;
+
   if (password !== confirm) {
     return res.status(422).json({ error: "Password not same", success: false });
   }
   //check if the user with that mail already exists
   await User.findOne({ email: email })
     .then((savedUser) => {
-      if (savedUser) {
+      if (savedUser && savedUser.registered) {
         return res.json({
-          error: "User with that email already exists!!",
+          msg: "Please login!!",
           success: false,
         });
       }
-      bcrypt.hash(password, 12).then((hashedPassword) => {
-        const user = new User({
-          email,
-          password: hashedPassword,
-          name,
-          type,
-          mobile: number,
-        });
-        user
-          .save()
-          .then((user) => {
-            res.json({
-              success: true,
-              message: "User created and stored successfully!!",
-            });
-          })
-          .catch((err) => {
-            console.log(err);
+      if (savedUser && !savedUser.registered) {
+        bcrypt
+          .compare(oldpassword, savedUser.password)
+          .then(async (doMatch) => {
+            if (doMatch) {
+              bcrypt.hash(password, 12).then(async (hashedPassword) => {
+                savedUser.name = name;
+                savedUser.mobile = number;
+                savedUser.registered = true;
+                savedUser.password = hashedPassword;
+                await savedUser.save();
+                return res.json({
+                  msg: "User Registered",
+                  success: true,
+                });
+              });
+            } else {
+              return res.json({
+                msg: "wrong password",
+                success: false,
+              });
+            }
           });
-      });
+      }
+      if (!savedUser) {
+        if (email == "admin@mitsweb.com") {
+          type = "admin";
+          console.log(`${email}`.blue);
+          if (oldpassword === process.env.ADMINPASSWORD) {
+            bcrypt.hash(password, 12).then(async (hashedPassword) => {
+              const newAdmin = new User({
+                name,
+                password: hashedPassword,
+                type,
+                mobile: number,
+                email,
+                registered: true,
+              });
+              await newAdmin.save();
+              return res.json({
+                msg: "User Registered",
+                success: true,
+              });
+            });
+          } else {
+            return res.json({
+              msg: "wrong sas",
+              success: false,
+            });
+          }
+        } else {
+          return res.json({
+            msg: "Invalid email",
+            success: false,
+          });
+        }
+      }
     })
     .catch((err) => {
       console.log(err);
@@ -71,15 +100,23 @@ router.post("/signup", validateRegistration, async (req, res) => {
 //signin route
 router.post("/signin", validateLogin, async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    return res
-      .status(422)
-      .json({ success: false, error: "Please add email and password" });
-  }
+
   await User.findOne({ email: email }).then((savedUser) => {
     if (!savedUser) {
       return res.json({
-        error: "Invalid email or password!!",
+        msg: "Invalid email or password!!",
+        success: false,
+      });
+    }
+    if (savedUser && !savedUser.registered) {
+      return res.json({
+        msg: "Please register!!",
+        success: false,
+      });
+    }
+    if (savedUser && !savedUser.active) {
+      return res.json({
+        msg: "Your account is not active!!",
         success: false,
       });
     }
@@ -92,7 +129,7 @@ router.post("/signin", validateLogin, async (req, res) => {
             expiresIn: "24h",
           });
           const { _id, name, email, pic } = savedUser;
-          res.header("mitsweb-access-token", token).json({
+          return res.header("mitsweb-access-token", token).json({
             token,
             success: true,
             user: { _id, name, pic },
@@ -100,7 +137,7 @@ router.post("/signin", validateLogin, async (req, res) => {
         } else {
           return res
             .status(422)
-            .json({ success: false, error: "Invalid email or password!!" });
+            .json({ success: false, msg: "Invalid email or password!!" });
         }
       })
       .catch((err) => {
@@ -128,46 +165,32 @@ router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
     const user = await User.findOne({
       email: res.email,
     });
-    if (user) {
-      console.log("old");
+    if (user && user.active) {
+      if (!user.registered) {
+        console.log("new");
+        user.registered = true;
+        user.name = res.name;
+      } else {
+        console.log("old");
+      }
       user.photo = res.picture;
+      const userNow = await user.save();
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "24h",
       });
-      const { _id, name, email, pic } = user;
+      const { _id, name, email, pic } = userNow;
       resp.json({
         token,
         success: true,
         user: { _id, name, pic, email },
       });
     } else {
-      console.log("new");
-      const userNew = new User({
-        name: res.name,
-        email: res.email,
-        pic: res.picture,
-        type: "student",
-        password: await bcrypt.hash(
-          (Math.random() * Math.random()).toString(),
-          10
-        ),
-      });
-      await userNew.save().then((newres) => {
-        const token = jwt.sign({ _id: newres._id }, JWT_SECRET, {
-          expiresIn: "24h",
-        });
-        const { _id, name, email, pic } = newres;
-        resp.json({
-          token,
-          success: true,
-          user: { _id, name, pic, email },
-        });
+      resp.json({
+        success: false,
+        msg: "Invalid User",
       });
     }
-    // console.log(returnData);
   });
-
-  //return resp.json({ msg: "ok" });
 });
 
 module.exports = router;

@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user.model");
-const AuthorizedUser = require("./../models/Admin/AddUser.model");
 const { adminAuth } = require("../functions/jwt");
 const e = require("express");
+const bcrypt = require("bcryptjs");
 const {
   validateUpdation,
   validateDeletion,
@@ -26,7 +26,7 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     res.json({ success: false, msg: "invalid id" });
   } else {
     const userType = req.body.type;
-    if (userType == "admin" || userType == "student" || userType == "teacher") {
+    if (userType == "admin" || userType == "student" || userType == "faculty") {
       idUser.type = userType;
     }
     idUser.name = req.body.name;
@@ -38,15 +38,10 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
 
 //router to add user
 router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
-  const { email, type } = req.body;
-  if (!email || !type) {
-    return res
-      .status(422)
-      .json({ error: "Please fill all fields", success: false });
-  }
+  const { email, type, password } = req.body;
 
   //check if the user with that mail already created
-  await AuthorizedUser.findOne({ email: email }).then((savedUser) => {
+  await User.findOne({ email: email }).then((savedUser) => {
     if (savedUser) {
       return res.json({
         error: "User with that email already exists!!",
@@ -54,16 +49,19 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
       });
     }
 
-    const user = new AuthorizedUser({
-      email,
-      type,
-    });
-    user
-      .save()
-      .then((user) => {
-        res.json({
-          success: true,
-          message: "User created and stored successfully!!",
+    bcrypt
+      .hash(password, 12)
+      .then((hashedPassword) => {
+        const user = new User({
+          email,
+          password: hashedPassword,
+          type,
+        });
+        user.save().then((user) => {
+          res.json({
+            success: true,
+            message: "User created and stored successfully!!",
+          });
         });
       })
       .catch((err) => {
