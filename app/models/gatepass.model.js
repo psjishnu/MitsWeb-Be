@@ -7,7 +7,7 @@ const gatePassSchema = new mongoose.Schema({
     required: true,
   },
   onDate: {
-    type: Date,
+    type: String,
     required: true,
   },
   onTime: {
@@ -20,4 +20,4 @@ const gatePassSchema = new mongoose.Schema({
   },
 });
 
-mongoose.model("GatePass", gatePassSchema);
+module.exports = mongoose.model("GatePass", gatePassSchema);
