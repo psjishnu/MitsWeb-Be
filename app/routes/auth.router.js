@@ -80,7 +80,7 @@ router.post("/signup", validateRegistration, async (req, res) => {
             });
           } else {
             return res.json({
-              msg: "wrong sas",
+              msg: "Wrong Password!!",
               success: false,
             });
           }
