@@ -6,14 +6,14 @@ const User = require("../models/user.model");
 const { validateUpdate } = require("./validation/user.validation");
 
 router.get("/getUser", auth, async (req, res) => {
-  const currentUser = await User.findOne({ _id: req.user._id });
+  const currentUser = await User.findOne({ email: req.user.email });
   console.log(`User retrieved`, `${currentUser.email}`.blue.bold);
   res.json({ data: currentUser, success: true });
 });
 //api used for updating user
 router.post("/updateuser", validateUpdate, auth, async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.user._id });
+    const user = await User.findOne({ email: req.user.email });
 
     const data = req.body;
 

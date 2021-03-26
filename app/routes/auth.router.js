@@ -3,6 +3,10 @@ const router = express.Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const User = require("../models/user.model");
+const Admin = require("../models/admin.model");
+const Faculty = require("../models/faculty.model");
+const Student = require("../models/student.model");
+const Office = require("../models/office.model");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const AuthValidator = require("google-auth-library");
@@ -27,13 +31,35 @@ router.post("/signup", validateRegistration, async (req, res) => {
   }
   //check if the user with that mail already exists
   await User.findOne({ email: email })
-    .then((savedUser) => {
+    .then(async (savedUser) => {
+      if (savedUser && savedUser.type === "faculty") {
+        await Faculty.findOne({ email: email }).then((resp) => {
+          savedUser = resp;
+        });
+      }
+      if (savedUser && savedUser.type === "admin") {
+        await Admin.findOne({ email: email }).then((resp) => {
+          savedUser = resp;
+        });
+      }
+      if (savedUser && savedUser.type === "student") {
+        await Student.findOne({ email: email }).then((resp) => {
+          savedUser = resp;
+        });
+      }
+      if (savedUser && savedUser.type === "office") {
+        await Office.findOne({ email: email }).then((resp) => {
+          savedUser = resp;
+        });
+      }
+
       if (savedUser && savedUser.registered) {
         return res.json({
           msg: "Please login!!",
           success: false,
         });
       }
+
       if (savedUser && !savedUser.registered) {
         bcrypt
           .compare(oldpassword, savedUser.password)
@@ -64,7 +90,9 @@ router.post("/signup", validateRegistration, async (req, res) => {
           console.log(`${email}`.blue);
           if (oldpassword === process.env.ADMINPASSWORD) {
             bcrypt.hash(password, 12).then(async (hashedPassword) => {
-              const newAdmin = new User({
+              const newUser = new User({ email, type });
+              await newUser.save();
+              const newAdmin = new Admin({
                 name,
                 password: hashedPassword,
                 type,
@@ -101,13 +129,34 @@ router.post("/signup", validateRegistration, async (req, res) => {
 router.post("/signin", validateLogin, async (req, res) => {
   const { email, password } = req.body;
 
-  await User.findOne({ email: email }).then((savedUser) => {
+  await User.findOne({ email: email }).then(async (savedUser) => {
     if (!savedUser) {
       return res.json({
         msg: "Invalid email or password!!",
         success: false,
       });
     }
+    if (savedUser && savedUser.type == "admin") {
+      await Admin.findOne({ email: email }).then((resp) => {
+        savedUser = resp;
+      });
+    }
+    if (savedUser && savedUser.type == "faculty") {
+      await Faculty.findOne({ email: email }).then((resp) => {
+        savedUser = resp;
+      });
+    }
+    if (savedUser && savedUser.type == "student") {
+      await Student.findOne({ email: email }).then((resp) => {
+        savedUser = resp;
+      });
+    }
+    if (savedUser && savedUser.type == "office") {
+      await Office.findOne({ email: email }).then((resp) => {
+        savedUser = resp;
+      });
+    }
+
     if (savedUser && !savedUser.registered) {
       return res.json({
         msg: "Please register!!",
@@ -125,7 +174,7 @@ router.post("/signin", validateLogin, async (req, res) => {
       .then((doMatch) => {
         if (doMatch) {
           // res.json({message:"successfully signed in"})
-          const token = jwt.sign({ _id: savedUser._id }, JWT_SECRET, {
+          const token = jwt.sign({ email: savedUser.email }, JWT_SECRET, {
             expiresIn: "24h",
           });
           const { _id, name, email, photo } = savedUser;

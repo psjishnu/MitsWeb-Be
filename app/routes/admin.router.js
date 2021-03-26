@@ -1,8 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/user.model");
+const Admin = require("../models/admin.model");
+const Faculty = require("../models/faculty.model");
+const Student = require("../models/student.model");
+const Office = require("../models/office.model");
 const { adminAuth } = require("../functions/jwt");
-const e = require("express");
 const bcrypt = require("bcryptjs");
 const {
   validateUpdation,
@@ -21,7 +24,7 @@ router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
 });
 
 router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
-  const idUser = await User.findOne({ _id: req.body.id });
+  const idUser = await User.findOne({ email: req.body.email });
   if (!idUser) {
     res.json({ success: false, msg: "invalid id" });
   } else {
@@ -52,12 +55,39 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
 
     bcrypt
       .hash(password, 12)
-      .then((hashedPassword) => {
+      .then(async (hashedPassword) => {
         const user = new User({
           email,
-          password: hashedPassword,
           type,
         });
+        if (type === "student") {
+          const newStudent = new Student({
+            email,
+            password: hashedPassword,
+          });
+          await newStudent.save();
+        }
+        if (type == "admin") {
+          const newAdmin = new Admin({
+            email,
+            password: hashedPassword,
+          });
+          await newAdmin.save();
+        }
+        if (type == "faculty") {
+          const newFaculty = new Faculty({
+            email,
+            password: hashedPassword,
+          });
+          await newFaculty.save();
+        }
+        if (type == "office") {
+          const newOffice = new Office({
+            email,
+            password: hashedPassword,
+          });
+          await newOffice.save();
+        }
         user.save().then((user) => {
           res.json({
             success: true,
@@ -71,16 +101,63 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
   });
 });
 
-router.get("/allusers", adminAuth, async (req, res) => {
+router.get("/allfaculties", adminAuth, async (req, res) => {
+  try {
+    var retArr = [];
+
+    await Faculty.find({}, (err, resp) => {
+      for (let i = 0; i < resp.length; i++) {
+        const {
+          name,
+          email,
+          mobile,
+          active,
+          registered,
+          isHOD,
+          advicor,
+        } = resp[i];
+        retArr[i] = { name, email, mobile, active, registered, isHOD, advicor };
+      }
+      res.json({ data: retArr, success: true });
+    });
+  } catch (err) {
+    res.json({ msg: err, success: false });
+  }
+});
+
+router.get("/alladmins", adminAuth, async (req, res) => {
+  try {
+    let retArr = [];
+    await Admin.find({}, (err, resp) => {
+      var j = 0;
+
+      for (let i = 0; i < resp.length; i++) {
+        const { name, mobile, active, registered, email } = resp[i];
+        if (req.user.email !== email && email !== "admin@mitsweb.com") {
+          retArr[j++] = {
+            name,
+            mobile,
+            email,
+            active,
+            registered,
+          };
+        }
+      }
+      res.json({ data: retArr, success: true });
+    });
+  } catch (err) {
+    res.json({ success: false, msg: err });
+  }
+});
+
+router.get("/allstudents", adminAuth, async (req, res) => {
   var retArr = [];
-  const allUsers = User.find({}, (err, resp) => {
-    var j = 0;
+  const allUsers = Student.find({}, (err, resp) => {
     for (let i = 0; i < resp.length; i++) {
       const {
         name,
         _id,
         pic,
-        type,
         mobile,
         address,
         bloodGroup,
@@ -89,21 +166,18 @@ router.get("/allusers", adminAuth, async (req, res) => {
         parentDetails,
         active,
       } = resp[i];
-      if (req.user._id !== String(_id) && email !== "admin@mitsweb.com") {
-        retArr[j++] = {
-          name,
-          _id,
-          pic,
-          type,
-          mobile,
-          address,
-          bloodGroup,
-          dob,
-          email,
-          parentDetails,
-          active,
-        };
-      }
+      retArr[i] = {
+        name,
+        _id,
+        pic,
+        mobile,
+        address,
+        bloodGroup,
+        dob,
+        email,
+        parentDetails,
+        active,
+      };
     }
     res.json({ success: true, data: retArr });
   });

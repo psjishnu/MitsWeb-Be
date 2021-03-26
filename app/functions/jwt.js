@@ -20,7 +20,7 @@ const adminAuth = async (req, res, next) => {
   try {
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     req.user = verified;
-    const currentUser = await User.findOne({ _id: req.user._id });
+    const currentUser = await User.findOne({ email: req.user.email });
     if (currentUser && currentUser.type === "admin") {
       next();
     } else {
