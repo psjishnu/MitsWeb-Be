@@ -15,7 +15,7 @@ const gatePassSchema = new mongoose.Schema({
     required: true,
   },
   requestBy: {
-    type: ObjectId,
+    type: String,
     ref: "User",
   },
 });
