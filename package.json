@@ -30,14 +30,14 @@
     "google-auth-library": "^6.1.6",
     "joi": "^17.4.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.12.1",
+    "mongoose": "^5.12.2",
     "nodemon": "^2.0.7",
     "path": "^0.12.7",
     "swagger-ui-express": "^4.1.6",
     "update": "^0.7.4"
   },
   "devDependencies": {
-    "eslint": "^7.22.0",
+    "eslint": "^7.23.0",
     "eslint-config-airbnb-base": "^14.2.1",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-import": "^2.22.1",
