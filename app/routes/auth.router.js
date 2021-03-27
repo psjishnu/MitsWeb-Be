@@ -211,9 +211,31 @@ router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
   };
 
   await tokenVerifier(req.body.googleToken).then(async (res) => {
-    const user = await User.findOne({
+    let user = await User.findOne({
       email: res.email,
     });
+
+    if (user && user.type == "student") {
+      await Student.findOne({ email: res.email }).then((resp) => {
+        user = resp;
+      });
+    }
+    if (user && user.type == "admin") {
+      await Admin.findOne({ email: res.email }).then((resp) => {
+        user = resp;
+      });
+    }
+    if (user && user.type == "faculty") {
+      await Faculty.findOne({ email: res.email }).then((resp) => {
+        user = resp;
+      });
+    }
+    if (user && user.type == "office") {
+      await Office.findOne({ email: res.email }).then((resp) => {
+        user = resp;
+      });
+    }
+
     if (user && user.active) {
       if (!user.registered) {
         console.log("new");
@@ -224,7 +246,7 @@ router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
       }
       user.photo = res.picture;
       const userNow = await user.save();
-      const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
+      const token = jwt.sign({ email: user.email }, JWT_SECRET, {
         expiresIn: "24h",
       });
       const { _id, name, email, photo } = userNow;
