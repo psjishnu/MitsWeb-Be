@@ -24,14 +24,32 @@ router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
 });
 
 router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
-  const idUser = await User.findOne({ email: req.body.email });
+  let idUser = await User.findOne({ email: req.body.email });
   if (!idUser) {
     res.json({ success: false, msg: "invalid id" });
   } else {
-    const userType = req.body.type;
-    if (userType == "admin" || userType == "student" || userType == "faculty") {
-      idUser.type = userType;
+    const { email } = req.body;
+    if (idUser.type == "student") {
+      await Student.findOne({ email }).then((resp) => {
+        idUser = resp;
+      });
     }
+    if (idUser.type == "office") {
+      await Office.findOne({ email }).then((resp) => {
+        idUser = resp;
+      });
+    }
+    if (idUser.type == "faculty") {
+      await Faculty.findOne({ email }).then((resp) => {
+        idUser = resp;
+      });
+    }
+    if (idUser.type == "admin") {
+      await Admin.findOne({ email }).then((resp) => {
+        idUser = resp;
+      });
+    }
+
     idUser.name = req.body.name;
     idUser.active = req.body.active;
     idUser.mobile = req.body.mobile;

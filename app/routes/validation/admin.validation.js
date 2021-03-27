@@ -4,7 +4,6 @@ let updateSchema = Joi.object({
   name: Joi.string().required(),
   type: Joi.string().required(),
   email: Joi.string(),
-  id: Joi.string().required(),
   mobile: Joi.number().required(),
   active: Joi.boolean().required(),
 });
