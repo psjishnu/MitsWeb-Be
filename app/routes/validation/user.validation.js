@@ -13,7 +13,7 @@ let updateScheme = Joi.object({
 
 const validateUpdate = (req, res, next) => {
   const { error, value } = updateScheme.validate(req.body);
-  error ? res.json({ msg: error, success: false }) : next();
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 
 module.exports = { validateUpdate };

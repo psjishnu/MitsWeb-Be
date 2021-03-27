@@ -20,17 +20,17 @@ let addUserSchema = Joi.object({
 
 const validateDeletion = (req, res, next) => {
   const { error, value } = deleteSchema.validate(req.body);
-  error ? res.json({ msg: error, success: false }) : next();
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 
 const validateUpdation = (req, res, next) => {
   const { error, value } = updateSchema.validate(req.body);
-  error ? res.json({ msg: error, success: false }) : next();
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 
 const validateAddUser = (req, res, next) => {
   const { error, value } = addUserSchema.validate(req.body);
-  error ? res.json({ msg: error, success: false }) : next();
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 
 module.exports = {
