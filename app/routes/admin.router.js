@@ -62,8 +62,8 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
 
 //router to add user
 router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
-  const { email, type, password } = req.body;
-
+  var { email, type, password } = req.body;
+  email = email.toLowerCase();
   //check if the user with that mail already created
   await User.findOne({ email: email }).then((savedUser) => {
     if (savedUser) {
