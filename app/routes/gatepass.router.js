@@ -4,6 +4,13 @@ const mongoose = require("mongoose");
 const GatePass = require("./../models/gatepass.model");
 const { auth } = require("./../functions/jwt");
 
+//get gate pass requests made by the user.
+router.get("/usergatepasses", auth, async (req, res) => {
+  const email = req.user.email;
+  const requests = await GatePass.find({ requestBy: email });
+  res.json({ data: requests, success: true });
+});
+
 //create a gate pass request
 router.post("/request", auth, async (req, res) => {
   try {
