@@ -6,6 +6,7 @@ let updateSchema = Joi.object({
   email: Joi.string(),
   mobile: Joi.number().required(),
   active: Joi.boolean().required(),
+  isHOD: Joi.boolean(),
 });
 
 let deleteSchema = Joi.object({

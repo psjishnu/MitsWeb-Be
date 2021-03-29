@@ -24,6 +24,7 @@ router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
 });
 
 router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
+  console.log(req.body);
   let idUser = await User.findOne({ email: req.body.email });
   if (!idUser) {
     res.json({ success: false, msg: "invalid id" });
@@ -53,6 +54,7 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     idUser.name = req.body.name;
     idUser.active = req.body.active;
     idUser.mobile = req.body.mobile;
+    idUser.isHOD = req.body.isHOD;
     const result = await idUser.save();
     res.json({ success: true, msg: result });
   }
