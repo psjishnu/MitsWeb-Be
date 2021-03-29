@@ -17,6 +17,11 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  department: {
+    type: String,
+    required: false,
+    default: "CSE",
+  },
   active: {
     type: Boolean,
     required: false,

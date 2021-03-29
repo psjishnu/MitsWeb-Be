@@ -32,9 +32,13 @@ const facultySchema = new mongoose.Schema({
     required: false,
     default: false,
   },
-  advicor: {
+  advisor: {
     type: Object,
     required: false,
+  },
+  department: {
+    type: String,
+    default: "CSE",
   },
   photo: {
     type: String,
