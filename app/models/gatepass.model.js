@@ -10,6 +10,10 @@ const gatePassSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  time: {
+    type: String,
+    required: true,
+  },
   onTime: {
     type: String,
     required: true,
@@ -17,6 +21,10 @@ const gatePassSchema = new mongoose.Schema({
   requestBy: {
     type: String,
     ref: "User",
+  },
+  status: {
+    type: Number,
+    default: 0,
   },
 });
 
