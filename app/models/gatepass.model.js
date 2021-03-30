@@ -18,6 +18,10 @@ const gatePassSchema = new mongoose.Schema({
     type: String,
     ref: "User",
   },
+  department: {
+    type: String,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model("GatePass", gatePassSchema);
