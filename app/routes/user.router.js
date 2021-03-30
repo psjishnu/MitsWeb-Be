@@ -3,13 +3,44 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const { auth } = require("../functions/jwt");
 const User = require("../models/user.model");
+const Faculty = require("../models/faculty.model");
 const { validateUpdate } = require("./validation/user.validation");
 
+//api to get the current user
 router.get("/getUser", auth, async (req, res) => {
   const currentUser = await User.findOne({ email: req.user.email });
   console.log(`User retrieved`, `${currentUser.email}`.blue.bold);
   res.json({ data: currentUser, success: true });
 });
+
+//api to get the logged in faculty
+router.get("/faculty", auth, async (req, res) => {
+  const currentFaculty = await Faculty.findOne({ email: req.user.email });
+  console.log(`Faculty retrieved`, `${currentFaculty.email}`.blue.bold);
+  delete currentFaculty.password;
+  const {
+    active,
+    registered,
+    isHOD,
+    department,
+    email,
+    mobile,
+    name,
+  } = currentFaculty;
+  res.json({
+    data: {
+      active,
+      registered,
+      isHOD,
+      department,
+      email,
+      mobile,
+      name,
+    },
+    success: true,
+  });
+});
+
 //api used for updating user
 router.post("/updateuser", validateUpdate, auth, async (req, res) => {
   try {
