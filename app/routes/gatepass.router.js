@@ -9,7 +9,7 @@ const { auth } = require("./../functions/jwt");
 router.get("/usergatepasses", auth, async (req, res) => {
   const email = req.user.email;
   const requests = await GatePass.find({ requestBy: email });
-  res.json({ data: requests, success: true });
+  res.json({ data: requests.reverse(), success: true });
 });
 
 //gate pass requests to be displayed to the hod of particular department
@@ -59,4 +59,24 @@ router.post("/request", auth, async (req, res) => {
   }
 });
 
+router.post("/edit", auth, async (req, res) => {
+  try {
+    const { email } = req.user;
+    const { onDate, onTime, description, _id } = req.body;
+    console.log(req.body);
+
+    const result = await GatePass.findOne({ _id, requestBy: email });
+    if (!result) {
+      return res.json({ success: false, msg: "An error occurred" });
+    } else {
+      result.onDate = onDate;
+      result.onTime = onTime;
+      result.description = description;
+      await result.save();
+      return res.json({ success: true });
+    }
+  } catch (err) {
+    return res.json({ success: false, msg: "error" });
+  }
+});
 module.exports = router;
