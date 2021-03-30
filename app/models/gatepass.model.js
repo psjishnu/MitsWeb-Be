@@ -22,14 +22,14 @@ const gatePassSchema = new mongoose.Schema({
     type: String,
     ref: "User",
   },
-  status:{
-  type: Number,
+  status: {
+    type: Number,
     default: 0,
   },
   department: {
     type: String,
     required: false,
-  }
+  },
 });
 
 module.exports = mongoose.model("GatePass", gatePassSchema);
