@@ -12,13 +12,8 @@ const {
 //get gate pass requests made by the user.
 router.get("/", auth, async (req, res) => {
   const email = req.user.email;
-  const requests = await GatePass.find({ requestBy: email });
-  function ActiveRequest(request) {
-    return request.status === 0;
-  }
-  const result = requests.filter(ActiveRequest);
-  // console.log(result);
-  res.json({ data: result.reverse(), success: true });
+  const requests = await GatePass.find({ requestBy: email, status: 0 });
+  res.json({ data: requests.reverse(), success: true });
 });
 
 router.post("/cancel", auth, validateDeletion, async (req, res) => {
