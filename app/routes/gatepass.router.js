@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const mongoose = require("mongoose");
 const GatePass = require("./../models/gatepass.model");
 const Student = require("./../models/student.model");
 const { auth } = require("./../functions/jwt");
@@ -33,21 +32,6 @@ router.post("/cancel", auth, validateDeletion, async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.json({ msg: "error", success: false });
-  }
-});
-
-//gate pass requests to be displayed to the hod of particular department
-router.get("/userrequests/:department", auth, async (req, res) => {
-  try {
-    const department = req.params.department;
-    const results = await GatePass.find({ department: department });
-    res.json({ data: results, success: true });
-  } catch (e) {
-    console.log(`Error:${e}`.red);
-    return res.json({
-      success: false,
-      message: "Something went wrong..! Unable to fetch gate pass requests.",
-    });
   }
 });
 

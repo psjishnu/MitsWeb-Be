@@ -56,16 +56,18 @@ router.get("/", (req, res) => {
 //import routes
 const adminRouter = require("./app/routes/admin.router");
 const authRouter = require("./app/routes/auth.router");
-const userRouter = require("./app/routes/user.router");
+const facultyRouter = require("./app/routes/faculty.router");
 const gatepassRouter = require("./app/routes/gatepass.router");
+const userRouter = require("./app/routes/user.router");
 
 app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 //use the  routes
 app.use("/admin", adminRouter);
 app.use("/auth", authRouter);
-app.use("/user", userRouter);
+app.use("/faculty", facultyRouter);
 app.use("/gatepass", gatepassRouter);
+app.use("/user", userRouter);
 
 //server listening on port
 app.listen(PORT, () => {
