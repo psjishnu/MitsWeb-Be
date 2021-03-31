@@ -4,6 +4,11 @@ const mongoose = require("mongoose");
 const GatePass = require("./../models/gatepass.model");
 const Student = require("./../models/student.model");
 const { auth } = require("./../functions/jwt");
+const {
+  validateDeletion,
+  validateCreation,
+  validateEdit,
+} = require("./validation/gatepass.validation");
 
 //get gate pass requests made by the user.
 router.get("/", auth, async (req, res) => {
@@ -12,7 +17,7 @@ router.get("/", auth, async (req, res) => {
   res.json({ data: requests.reverse(), success: true });
 });
 
-router.post("/cancel", auth, async (req, res) => {
+router.post("/cancel", auth, validateDeletion, async (req, res) => {
   try {
     const email = req.user.email;
     const requests = await GatePass.findOne({
@@ -47,16 +52,11 @@ router.get("/userrequests/:department", auth, async (req, res) => {
 });
 
 //create a gate pass request
-router.post("/request", auth, async (req, res) => {
+router.post("/request", auth, validateCreation, async (req, res) => {
   try {
     const user = await Student.findOne({ email: req.user.email });
     const department = user["department"];
     const { onDate, onTime, description, time } = req.body;
-    if (!onDate || !onTime || !description) {
-      return res.status(422).json({ error: "please fill all fields!!" });
-    } else {
-      console.log(`Reason:${description},Date:${onDate},Time:${onTime}`.green);
-    }
     const gatePass = new GatePass({
       onDate,
       onTime,
@@ -79,7 +79,7 @@ router.post("/request", auth, async (req, res) => {
   }
 });
 
-router.post("/edit", auth, async (req, res) => {
+router.post("/edit", auth, validateEdit, async (req, res) => {
   try {
     const { email } = req.user;
     const { onDate, onTime, description, _id } = req.body;

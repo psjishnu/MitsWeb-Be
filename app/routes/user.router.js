@@ -16,6 +16,9 @@ router.get("/getUser", auth, async (req, res) => {
 //api to get the logged in faculty
 router.get("/faculty", auth, async (req, res) => {
   const currentFaculty = await Faculty.findOne({ email: req.user.email });
+  if (!currentFaculty) {
+    return res.json({ success: false, msg: "invalid email" });
+  }
   console.log(`Faculty retrieved`, `${currentFaculty.email}`.blue.bold);
   delete currentFaculty.password;
   const {
