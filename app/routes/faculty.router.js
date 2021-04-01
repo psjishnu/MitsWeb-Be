@@ -32,6 +32,10 @@ router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
     return res.json({ success: false, msg: "Error" });
   }
   const action = Number(req.params.action);
+  if (!(action === 1 || action === -1)) {
+    return res.json({ success: false, msg: "Error" });
+  }
+
   gatepass.status = action;
   await gatepass.save();
   const msg = action === 1 ? "Gatepass approved" : "Gatepass rejected";
