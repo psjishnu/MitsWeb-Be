@@ -13,7 +13,11 @@ router.get("/gatepass", facultyAuth, async (req, res) => {
       return res.json({ msg: "error", success: false });
     }
     const department = faculty.department;
-    const results = await GatePass.find({ department: department });
+    const results = await GatePass.find({
+      department: department,
+      // $or: [{ status: 0 }, { status: 1 }],
+      status: 0,
+    });
     return res.json({ success: true, data: results.reverse() });
   } catch (err) {
     return res.json({ msg: "Error", success: false });
@@ -63,7 +67,7 @@ router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
     onDate: gatepass.onDate,
     description: gatepass.description,
     _id: gatepass._id,
-    status: gatepass.status
+    status: gatepass.status,
   };
   return res.json({ success: true, data });
 });
