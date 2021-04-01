@@ -6,17 +6,17 @@ let updateSchema = Joi.object({
   email: Joi.string(),
   mobile: Joi.number().required(),
   active: Joi.boolean().required(),
-  isHOD: Joi.boolean(),
+  isHOD: Joi.boolean()
 });
 
 let deleteSchema = Joi.object({
-  deleteId: Joi.string().required(),
+  email: Joi.string().required().email()
 });
 
 let addUserSchema = Joi.object({
   email: Joi.string().required().email(),
   type: Joi.string().required(),
-  password: Joi.string().required(),
+  password: Joi.string().required()
 });
 
 const validateDeletion = (req, res, next) => {
@@ -37,5 +37,5 @@ const validateAddUser = (req, res, next) => {
 module.exports = {
   validateUpdation,
   validateDeletion,
-  validateAddUser,
+  validateAddUser
 };

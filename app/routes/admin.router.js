@@ -10,16 +10,26 @@ const bcrypt = require("bcryptjs");
 const {
   validateUpdation,
   validateDeletion,
-  validateAddUser,
+  validateAddUser
 } = require("./validation/admin.validation");
 
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
-  const idUser = await User.findOne({ _id: req.body.deleteId });
+  const idUser = await User.findOne({ email: req.body.email });
   if (!idUser) {
-    res.json({ success: false, msg: "invlid id" });
+    return res.json({ success: false, msg: "invlid id" });
   } else {
-    const result = await User.deleteOne({ _id: req.body.deleteId });
-    res.json({ success: true, msg: "user deleted" });
+    const email = idUser.email;
+    await User.deleteOne({ email });
+    if (idUser.type === "student") {
+      await Student.deleteOne({ email });
+    } else if (idUser.type === "admin") {
+      await Admin.deleteOne({ email });
+    } else if (idUser.type === "faculty") {
+      await Faculty.deleteOne({ email });
+    } else if (idUser.type === "office") {
+      await Office.deleteOne({ email });
+    }
+    return res.json({ success: true, msg: "user deleted" });
   }
 });
 
@@ -29,22 +39,22 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     res.json({ success: false, msg: "invalid id" });
   } else {
     const { email } = req.body;
-    if (idUser.type == "student") {
+    if (idUser.type === "student") {
       await Student.findOne({ email }).then((resp) => {
         idUser = resp;
       });
     }
-    if (idUser.type == "office") {
+    if (idUser.type === "office") {
       await Office.findOne({ email }).then((resp) => {
         idUser = resp;
       });
     }
-    if (idUser.type == "faculty") {
+    if (idUser.type === "faculty") {
       await Faculty.findOne({ email }).then((resp) => {
         idUser = resp;
       });
     }
-    if (idUser.type == "admin") {
+    if (idUser.type === "admin") {
       await Admin.findOne({ email }).then((resp) => {
         idUser = resp;
       });
@@ -68,7 +78,7 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
     if (savedUser) {
       return res.json({
         error: "User with that email already exists!!",
-        success: false,
+        success: false
       });
     }
 
@@ -77,40 +87,40 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
       .then(async (hashedPassword) => {
         const user = new User({
           email,
-          type,
+          type
         });
         if (type === "student") {
           const newStudent = new Student({
             email,
-            password: hashedPassword,
+            password: hashedPassword
           });
           await newStudent.save();
         }
-        if (type == "admin") {
+        if (type === "admin") {
           const newAdmin = new Admin({
             email,
-            password: hashedPassword,
+            password: hashedPassword
           });
           await newAdmin.save();
         }
-        if (type == "faculty") {
+        if (type === "faculty") {
           const newFaculty = new Faculty({
             email,
-            password: hashedPassword,
+            password: hashedPassword
           });
           await newFaculty.save();
         }
-        if (type == "office") {
+        if (type === "office") {
           const newOffice = new Office({
             email,
-            password: hashedPassword,
+            password: hashedPassword
           });
           await newOffice.save();
         }
         user.save().then((user) => {
           res.json({
             success: true,
-            message: "User created and stored successfully!!",
+            message: "User created and stored successfully!!"
           });
         });
       })
@@ -133,7 +143,7 @@ router.get("/allfaculties", adminAuth, async (req, res) => {
           active,
           registered,
           isHOD,
-          advicor,
+          advicor
         } = resp[i];
         retArr[i] = { name, email, mobile, active, registered, isHOD, advicor };
       }
@@ -158,7 +168,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
             mobile,
             email,
             active,
-            registered,
+            registered
           };
         }
       }
@@ -171,7 +181,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
 
 router.get("/allstudents", adminAuth, async (req, res) => {
   var retArr = [];
-  const allUsers = Student.find({}, (err, resp) => {
+  await Student.find({}, (err, resp) => {
     for (let i = 0; i < resp.length; i++) {
       const {
         name,
@@ -183,7 +193,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         dob,
         email,
         parentDetails,
-        active,
+        active
       } = resp[i];
       retArr[i] = {
         name,
@@ -195,7 +205,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         dob,
         email,
         parentDetails,
-        active,
+        active
       };
     }
     res.json({ success: true, data: retArr });
