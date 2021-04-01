@@ -62,7 +62,8 @@ router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
     onTime: gatepass.onTime,
     onDate: gatepass.onDate,
     description: gatepass.description,
-    _id: gatepass._id
+    _id: gatepass._id,
+    status: gatepass.status
   };
   return res.json({ success: true, data });
 });
