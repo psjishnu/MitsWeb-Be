@@ -10,7 +10,7 @@ const Office = require("../models/office.model");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = process.env.JWT_SECRET;
 const AuthValidator = require("google-auth-library");
-
+const Security = require("../models/security.model");
 const {
   validateRegistration,
   validateLogin,
@@ -49,6 +49,11 @@ router.post("/signup", validateRegistration, async (req, res) => {
       }
       if (savedUser && savedUser.type === "office") {
         await Office.findOne({ email: email }).then((resp) => {
+          savedUser = resp;
+        });
+      }
+      if (savedUser && savedUser.type === "security") {
+        await Security.findOne({ email: email }).then((resp) => {
           savedUser = resp;
         });
       }
@@ -156,6 +161,11 @@ router.post("/signin", validateLogin, async (req, res) => {
         savedUser = resp;
       });
     }
+    if (savedUser && savedUser.type == "security") {
+      await Security.findOne({ email: email }).then((resp) => {
+        savedUser = resp;
+      });
+    }
 
     if (savedUser && !savedUser.registered) {
       return res.json({
@@ -232,6 +242,11 @@ router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
     }
     if (user && user.type == "office") {
       await Office.findOne({ email: res.email }).then((resp) => {
+        user = resp;
+      });
+    }
+    if (user && user.type == "office") {
+      await Security.findOne({ email: res.email }).then((resp) => {
         user = resp;
       });
     }

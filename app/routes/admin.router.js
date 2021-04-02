@@ -5,6 +5,7 @@ const Admin = require("../models/admin.model");
 const Faculty = require("../models/faculty.model");
 const Student = require("../models/student.model");
 const Office = require("../models/office.model");
+const Security = require("../models/security.model");
 const { adminAuth } = require("../functions/jwt");
 const bcrypt = require("bcryptjs");
 const {
@@ -28,6 +29,8 @@ router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
       await Faculty.deleteOne({ email });
     } else if (idUser.type === "office") {
       await Office.deleteOne({ email });
+    } else if (idUser.type === "security") {
+      await Security.deleteOne({ email });
     }
     return res.json({ success: true, msg: "user deleted" });
   }
@@ -59,6 +62,11 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
         idUser = resp;
       });
     }
+    if (idUser.type === "security") {
+      await Security.findOne({ email }).then((resp) => {
+        idUser = resp;
+      });
+    }
 
     idUser.name = req.body.name;
     idUser.active = req.body.active;
@@ -81,7 +89,20 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
         success: false,
       });
     }
-
+    if (
+      !(
+        type === "admin" ||
+        type === "student" ||
+        type == "faculty" ||
+        type === "security" ||
+        type === "office"
+      )
+    ) {
+      return res.json({
+        success: false,
+        error: "Invalid type",
+      });
+    }
     bcrypt
       .hash(password, 12)
       .then(async (hashedPassword) => {
@@ -116,6 +137,13 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
             password: hashedPassword,
           });
           await newOffice.save();
+        }
+        if (type === "security") {
+          const newSecurity = new Security({
+            email,
+            password: hashedPassword,
+          });
+          await newSecurity.save();
         }
         user.save().then((user) => {
           res.json({
