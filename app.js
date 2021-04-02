@@ -15,7 +15,7 @@ const swaggerDocument = require("./swagger.json");
 mongoose.connect(process.env.MONGOURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  useFindAndModify: false
+  useFindAndModify: false,
 });
 
 //on successful connection

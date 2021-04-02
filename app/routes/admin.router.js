@@ -10,7 +10,7 @@ const bcrypt = require("bcryptjs");
 const {
   validateUpdation,
   validateDeletion,
-  validateAddUser
+  validateAddUser,
 } = require("./validation/admin.validation");
 
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
@@ -78,7 +78,7 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
     if (savedUser) {
       return res.json({
         error: "User with that email already exists!!",
-        success: false
+        success: false,
       });
     }
 
@@ -87,40 +87,40 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
       .then(async (hashedPassword) => {
         const user = new User({
           email,
-          type
+          type,
         });
         if (type === "student") {
           const newStudent = new Student({
             email,
-            password: hashedPassword
+            password: hashedPassword,
           });
           await newStudent.save();
         }
         if (type === "admin") {
           const newAdmin = new Admin({
             email,
-            password: hashedPassword
+            password: hashedPassword,
           });
           await newAdmin.save();
         }
         if (type === "faculty") {
           const newFaculty = new Faculty({
             email,
-            password: hashedPassword
+            password: hashedPassword,
           });
           await newFaculty.save();
         }
         if (type === "office") {
           const newOffice = new Office({
             email,
-            password: hashedPassword
+            password: hashedPassword,
           });
           await newOffice.save();
         }
         user.save().then((user) => {
           res.json({
             success: true,
-            message: "User created and stored successfully!!"
+            message: "User created and stored successfully!!",
           });
         });
       })
@@ -143,7 +143,7 @@ router.get("/allfaculties", adminAuth, async (req, res) => {
           active,
           registered,
           isHOD,
-          advicor
+          advicor,
         } = resp[i];
         retArr[i] = { name, email, mobile, active, registered, isHOD, advicor };
       }
@@ -168,7 +168,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
             mobile,
             email,
             active,
-            registered
+            registered,
           };
         }
       }
@@ -193,7 +193,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         dob,
         email,
         parentDetails,
-        active
+        active,
       } = resp[i];
       retArr[i] = {
         name,
@@ -205,7 +205,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         dob,
         email,
         parentDetails,
-        active
+        active,
       };
     }
     res.json({ success: true, data: retArr });

@@ -12,8 +12,38 @@ const {
 //get gate pass requests made by the user.
 router.get("/", auth, async (req, res) => {
   const email = req.user.email;
-  const requests = await GatePass.find({ requestBy: email, status: 0 });
+  const requests = await GatePass.find({
+    requestBy: email,
+    $or: [{ status: 0 }, { status: 1 }],
+  });
   res.json({ data: requests.reverse(), success: true });
+});
+
+router.get("/view/:id", async (req, res) => {
+  try {
+    const _id = req.params.id;
+    const gatepass = await GatePass.findOne({ _id, status: 1 });
+    if (!gatepass) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const { onTime, onDate, department } = gatepass;
+    const student = await Student.findOne({ email: gatepass.requestBy });
+    if (!student) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const { name, email, photo } = student;
+    const data = {
+      name,
+      email,
+      photo,
+      department,
+      onTime,
+      onDate,
+    };
+    return res.json({ success: true, data });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
 });
 
 router.post("/cancel", auth, validateDeletion, async (req, res) => {
