@@ -8,6 +8,7 @@ const {
   validateCreation,
   validateEdit,
 } = require("./validation/gatepass.validation");
+const moment = require("moment");
 
 //get gate pass requests made by the user.
 router.get("/", auth, async (req, res) => {
@@ -24,6 +25,15 @@ router.get("/view/:id", async (req, res) => {
     const _id = req.params.id;
     const gatepass = await GatePass.findOne({ _id, status: 1 });
     if (!gatepass) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const date = gatepass.time;
+    if (
+      !(
+        new Date(date).toISOString() > new Date().toISOString() ||
+        moment().format("MMM Do YY") === moment(date).format("MMM Do YY")
+      )
+    ) {
       return res.json({ success: false, msg: "Error" });
     }
     const { onTime, onDate, department } = gatepass;
@@ -60,7 +70,6 @@ router.post("/cancel", auth, validateDeletion, async (req, res) => {
     await requests.save();
     return res.json({ success: true, msg: "Gatepass cancelled" });
   } catch (err) {
-    console.log(err);
     return res.json({ msg: "error", success: false });
   }
 });
