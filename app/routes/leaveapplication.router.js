@@ -8,6 +8,16 @@ const {
 } = require("./validation/leaveapplication.validation");
 const moment = require("moment");
 
+//get leave application submissions made by the user.
+router.get("/", auth, async (req, res) => {
+  const email = req.user.email;
+  const requests = await LeaveApplication.find({
+    requestBy: email,
+    $or: [{ status: 0 }, { status: 1 }],
+  });
+  res.json({ data: requests.reverse(), success: true });
+});
+
 //create a new leave application request
 router.post("/request", auth, validateCreation, async (req, res) => {
   try {
