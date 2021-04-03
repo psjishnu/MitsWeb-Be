@@ -25,6 +25,10 @@ const leaveApplicationSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  type: {
+    type: String,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model("LeaveApplication", leaveApplicationSchema);
