@@ -9,6 +9,7 @@ const {
   validateEdit,
 } = require("./validation/gatepass.validation");
 const moment = require("moment");
+const { isValidObjectId } = require("mongoose");
 
 //get gate pass requests made by the user.
 router.get("/", auth, async (req, res) => {
@@ -23,6 +24,9 @@ router.get("/", auth, async (req, res) => {
 router.get("/view/:id", async (req, res) => {
   try {
     const _id = req.params.id;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
     const gatepass = await GatePass.findOne({ _id, status: 1 });
     if (!gatepass) {
       return res.json({ success: false, msg: "Error" });
@@ -59,6 +63,9 @@ router.get("/view/:id", async (req, res) => {
 router.post("/cancel", auth, validateDeletion, async (req, res) => {
   try {
     const email = req.user.email;
+    if (!isValidObjectId(req.body.deleteId)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
     const requests = await GatePass.findOne({
       requestBy: email,
       _id: req.body.deleteId,
@@ -106,7 +113,9 @@ router.post("/edit", auth, validateEdit, async (req, res) => {
   try {
     const { email } = req.user;
     const { onDate, onTime, description, _id, time } = req.body;
-
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
     const result = await GatePass.findOne({ _id, requestBy: email });
     if (!result) {
       return res.json({ success: false, msg: "An error occurred" });
