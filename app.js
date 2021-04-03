@@ -57,6 +57,7 @@ const adminRouter = require("./app/routes/admin.router");
 const authRouter = require("./app/routes/auth.router");
 const facultyRouter = require("./app/routes/faculty.router");
 const gatepassRouter = require("./app/routes/gatepass.router");
+const leaveapplicationRouter = require("./app/routes/leaveapplication.router");
 const securityRouter = require("./app/routes/security.router");
 const userRouter = require("./app/routes/user.router");
 
@@ -67,6 +68,7 @@ app.use("/admin", adminRouter);
 app.use("/auth", authRouter);
 app.use("/faculty", facultyRouter);
 app.use("/gatepass", gatepassRouter);
+app.use("/leaveapplication", leaveapplicationRouter);
 app.use("/security", securityRouter);
 app.use("/user", userRouter);
 
