@@ -105,7 +105,7 @@ router.post("/request", auth, validateCreation, async (req, res) => {
 router.post("/edit", auth, validateEdit, async (req, res) => {
   try {
     const { email } = req.user;
-    const { onDate, onTime, description, _id } = req.body;
+    const { onDate, onTime, description, _id, time } = req.body;
 
     const result = await GatePass.findOne({ _id, requestBy: email });
     if (!result) {
@@ -113,6 +113,7 @@ router.post("/edit", auth, validateEdit, async (req, res) => {
     } else {
       result.onDate = onDate;
       result.onTime = onTime;
+      result.time = time;
       result.description = description;
       await result.save();
       return res.json({ success: true });
