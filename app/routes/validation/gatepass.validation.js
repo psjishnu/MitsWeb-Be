@@ -5,14 +5,10 @@ let deleteSchema = Joi.object({
 });
 
 let createSchema = Joi.object({
-  onTime: Joi.string().required(),
-  onDate: Joi.string().required(),
   description: Joi.string().required(),
   time: Joi.string().required(),
 });
 let editSchema = Joi.object({
-  onTime: Joi.string().required(),
-  onDate: Joi.string().required(),
   description: Joi.string().required(),
   time: Joi.string().required(),
   _id: Joi.string().required(),

@@ -86,10 +86,8 @@ router.post("/request", auth, validateCreation, async (req, res) => {
   try {
     const user = await Student.findOne({ email: req.user.email });
     const department = user["department"];
-    const { onDate, onTime, description, time } = req.body;
+    const { description, time } = req.body;
     const gatePass = new GatePass({
-      onDate,
-      onTime,
       description,
       department,
       requestBy: req.user.email,
@@ -112,7 +110,7 @@ router.post("/request", auth, validateCreation, async (req, res) => {
 router.post("/edit", auth, validateEdit, async (req, res) => {
   try {
     const { email } = req.user;
-    const { onDate, onTime, description, _id, time } = req.body;
+    const { description, _id, time } = req.body;
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid Id" });
     }
@@ -120,8 +118,6 @@ router.post("/edit", auth, validateEdit, async (req, res) => {
     if (!result) {
       return res.json({ success: false, msg: "An error occurred" });
     } else {
-      result.onDate = onDate;
-      result.onTime = onTime;
       result.time = time;
       result.description = description;
       await result.save();
