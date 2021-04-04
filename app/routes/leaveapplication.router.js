@@ -5,6 +5,7 @@ const Student = require("./../models/student.model");
 const { auth } = require("./../functions/jwt");
 const {
   validateCreation,
+  validateDeletion,
 } = require("./validation/leaveapplication.validation");
 const moment = require("moment");
 
@@ -53,6 +54,28 @@ router.post("/request", auth, validateCreation, async (req, res) => {
       success: false,
       message: "Something went wrong..! Leave application submission failed.",
     });
+  }
+});
+
+//cancel a leave application submission
+router.post("/cancel", auth, validateDeletion, async (req, res) => {
+  try {
+    const email = req.user.email;
+    if (!isValidObjectId(req.body.deleteId)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    const request = await LeaveApplication.findOne({
+      requestBy: email,
+      _id: req.body.deleteId,
+    });
+    if (!request) {
+      return res.json({ success: false, msg: "invalid id" });
+    }
+    request.status = -1;
+    await request.save();
+    return res.json({ success: true, msg: "Leave submission cancelled" });
+  } catch (err) {
+    return res.json({ msg: "error", success: false });
   }
 });
 
