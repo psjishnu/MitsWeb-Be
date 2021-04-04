@@ -23,22 +23,11 @@ router.post("/request", auth, validateCreation, async (req, res) => {
   try {
     const user = await Student.findOne({ email: req.user.email });
     const department = user["department"];
-    const {
-      toDate,
-      fromDate,
-      description,
-      type,
-      fromTimestamp,
-      toTimestamp,
-    } = req.body;
-    console.log(`Leave type:${type} \n Description:${description}`.green);
+    const { description, fromTimestamp, toTimestamp } = req.body;
     const leaveApplication = new LeaveApplication({
-      toDate,
-      fromDate,
       description,
       department,
       requestBy: req.user.email,
-      type,
       fromTimestamp,
       toTimestamp,
     });

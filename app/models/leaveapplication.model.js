@@ -5,14 +5,6 @@ const leaveApplicationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  toDate: {
-    type: String,
-    required: true,
-  },
-  fromDate: {
-    type: String,
-    required: true,
-  },
   toTimestamp: {
     type: String,
     required: true,
@@ -30,10 +22,6 @@ const leaveApplicationSchema = new mongoose.Schema({
     default: 0,
   },
   department: {
-    type: String,
-    required: false,
-  },
-  type: {
     type: String,
     required: false,
   },

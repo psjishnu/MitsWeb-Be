@@ -5,20 +5,14 @@ let deleteSchema = Joi.object({
 });
 
 let createSchema = Joi.object({
-  toDate: Joi.string().required(),
-  fromDate: Joi.string().required(),
   description: Joi.string().required(),
-  type: Joi.string().required(),
   fromTimestamp: Joi.string().required(),
   toTimestamp: Joi.string().required(),
 });
 let editSchema = Joi.object({
   fromTimestamp: Joi.string().required(),
   toTimestamp: Joi.string().required(),
-  toDate: Joi.string().required(),
-  fromDate: Joi.string().required(),
   description: Joi.string().required(),
-  type: Joi.string().required(),
   _id: Joi.string().required(),
 });
 
