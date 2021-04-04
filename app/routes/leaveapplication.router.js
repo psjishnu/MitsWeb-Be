@@ -23,7 +23,14 @@ router.post("/request", auth, validateCreation, async (req, res) => {
   try {
     const user = await Student.findOne({ email: req.user.email });
     const department = user["department"];
-    const { toDate, fromDate, description, type } = req.body;
+    const {
+      toDate,
+      fromDate,
+      description,
+      type,
+      fromTimestamp,
+      toTimestamp,
+    } = req.body;
     console.log(`Leave type:${type} \n Description:${description}`.green);
     const leaveApplication = new LeaveApplication({
       toDate,
@@ -32,6 +39,8 @@ router.post("/request", auth, validateCreation, async (req, res) => {
       department,
       requestBy: req.user.email,
       type,
+      fromTimestamp,
+      toTimestamp,
     });
     await leaveApplication.save();
     return res.json({

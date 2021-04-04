@@ -13,6 +13,14 @@ const leaveApplicationSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  toTimestamp: {
+    type: String,
+    required: true,
+  },
+  fromTimestamp: {
+    type: String,
+    required: true,
+  },
   requestBy: {
     type: String,
     ref: "User",
