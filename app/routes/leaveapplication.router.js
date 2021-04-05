@@ -6,8 +6,10 @@ const { auth } = require("./../functions/jwt");
 const {
   validateCreation,
   validateDeletion,
+  validateEdit,
 } = require("./validation/leaveapplication.validation");
 const moment = require("moment");
+const { isValidObjectId } = require("mongoose");
 
 //get leave application submissions made by the user.
 router.get("/", auth, async (req, res) => {
@@ -64,7 +66,32 @@ router.post("/cancel", auth, validateDeletion, async (req, res) => {
     await request.save();
     return res.json({ success: true, msg: "Leave submission cancelled" });
   } catch (err) {
-    return res.json({ msg: "error", success: false });
+    console.log(`{err.message}`.red);
+    return res.json({ msg: err.message, success: false });
+  }
+});
+
+//api end point to edit the leave application
+router.post("/edit", auth, validateEdit, async (req, res) => {
+  try {
+    const { email } = req.user;
+    const { description, _id, toTimestamp, fromTimestamp } = req.body;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    const result = await LeaveApplication.findOne({ _id, requestBy: email });
+    if (!result) {
+      return res.json({ success: false, msg: "An error occurred" });
+    } else {
+      result.fromTimestamp = fromTimestamp;
+      result.toTimestamp = toTimestamp;
+      result.description = description;
+      await result.save();
+      return res.json({ success: true });
+    }
+  } catch (err) {
+    console.log(`{err.message}`.red);
+    return res.json({ success: false, msg: err.message });
   }
 });
 
