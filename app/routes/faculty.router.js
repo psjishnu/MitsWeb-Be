@@ -4,6 +4,7 @@ const GatePass = require("../models/gatepass.model");
 const Faculty = require("../models/faculty.model");
 const { facultyAuth } = require("../functions/jwt");
 const Student = require("../models/student.model");
+const moment = require("moment");
 
 router.get("/gatepass", facultyAuth, async (req, res) => {
   try {
@@ -15,10 +16,19 @@ router.get("/gatepass", facultyAuth, async (req, res) => {
     const department = faculty.department;
     const results = await GatePass.find({
       department: department,
-      // $or: [{ status: 0 }, { status: 1 }],
       status: 0,
     });
-    return res.json({ success: true, data: results.reverse() });
+
+    var passes = [];
+    results.filter((pass) => {
+      if (
+        new Date(pass.time).toISOString() > new Date().toISOString() ||
+        moment().format("MMM Do YY") === moment(pass.time).format("MMM Do YY")
+      ) {
+        passes = passes.concat(pass);
+      }
+    });
+    return res.json({ success: true, data: passes.reverse() });
   } catch (err) {
     return res.json({ msg: "Error", success: false });
   }
@@ -63,8 +73,7 @@ router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
     name: student.name,
     email: student.email,
     photo: student.photo,
-    onTime: gatepass.onTime,
-    onDate: gatepass.onDate,
+    time: gatepass.time,
     description: gatepass.description,
     _id: gatepass._id,
     status: gatepass.status,
