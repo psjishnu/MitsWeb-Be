@@ -18,7 +18,16 @@ router.get("/", auth, async (req, res) => {
     requestBy: email,
     $or: [{ status: 0 }, { status: 1 }],
   });
-  res.json({ data: requests.reverse(), success: true });
+  var passes = [];
+  requests.filter((pass) => {
+    if (
+      new Date(pass.time).toISOString() > new Date().toISOString() ||
+      moment().format("MMM Do YY") === moment(pass.time).format("MMM Do YY")
+    ) {
+      passes = passes.concat(pass);
+    }
+  });
+  res.json({ data: passes.reverse(), success: true });
 });
 
 router.get("/view/:id", async (req, res) => {
