@@ -5,6 +5,7 @@ const Faculty = require("../models/faculty.model");
 const { facultyAuth } = require("../functions/jwt");
 const Student = require("../models/student.model");
 const moment = require("moment");
+const { isValidObjectId } = require("mongoose");
 
 router.get("/gatepass", facultyAuth, async (req, res) => {
   try {
@@ -36,17 +37,18 @@ router.get("/gatepass", facultyAuth, async (req, res) => {
 
 router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
   let { email } = req.user;
+  const _id = req.params._id;
+  const action = Number(req.params.action);
+  if (!(action === 1 || action === -1) || !isValidObjectId(_id)) {
+    return res.json({ success: false, msg: "Invalid Id or Action" });
+  }
+
   const hod = await Faculty.findOne({ email, isHOD: true });
   if (!hod) {
     return res.json({ success: false, msg: "Error" });
   }
-  const _id = req.params._id;
   const gatepass = await GatePass.findOne({ _id, department: hod.department });
   if (!gatepass) {
-    return res.json({ success: false, msg: "Error" });
-  }
-  const action = Number(req.params.action);
-  if (!(action === 1 || action === -1)) {
     return res.json({ success: false, msg: "Error" });
   }
 
@@ -58,12 +60,14 @@ router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
 
 router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
   let { email } = req.user;
-
+  const _id = req.params._id;
+  if (!isValidObjectId(_id)) {
+    return res.json({ success: false, msg: "Invalid id" });
+  }
   const hod = await Faculty.findOne({ email, isHOD: true });
   if (!hod) {
     return res.json({ success: false, msg: "Error" });
   }
-  const _id = req.params._id;
   const gatepass = await GatePass.findOne({ _id, department: hod.department });
   if (!gatepass) {
     return res.json({ success: false, msg: "Error" });
