@@ -49,7 +49,7 @@ router.get("/view/:id", async (req, res) => {
     ) {
       return res.json({ success: false, msg: "Error" });
     }
-    const { onTime, onDate, department } = gatepass;
+    const { time, department } = gatepass;
     const student = await Student.findOne({ email: gatepass.requestBy });
     if (!student) {
       return res.json({ success: false, msg: "Error" });
@@ -60,8 +60,7 @@ router.get("/view/:id", async (req, res) => {
       email,
       photo,
       department,
-      onTime,
-      onDate,
+      time,
     };
     return res.json({ success: true, data });
   } catch (err) {
