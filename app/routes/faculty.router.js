@@ -12,7 +12,7 @@ router.get("/gatepass", facultyAuth, async (req, res) => {
     const { email } = req.user;
     const faculty = await Faculty.findOne({ email, isHOD: true });
     if (!faculty) {
-      return res.json({ msg: "error", success: false });
+      return res.json({ msg: "error", success: false, data: true });
     }
     const department = faculty.department;
     const results = await GatePass.find({
