@@ -27,7 +27,7 @@ router.post("/verify", validateGatepass, securityAuth, async (req, res) => {
     return res.json({ success: false, msg: "Invalid Gatepass" });
   }
 
-  //  gatepass.status = 2;
+  gatepass.status = 2;
   gatepass = await gatepass.save();
   const { time, department } = gatepass;
   const student = await Student.findOne({ email: gatepass.requestBy });
