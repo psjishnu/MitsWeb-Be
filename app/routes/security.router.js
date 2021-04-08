@@ -12,7 +12,8 @@ router.post("/verify", validateGatepass, securityAuth, async (req, res) => {
   if (!isValidObjectId(_id)) {
     return res.json({ success: false, msg: "Invalid Gatepass" });
   }
-  var gatepass = await GatePass.findOne({ _id, status: 1 });
+  const gatepass = await GatePass.findOne({ _id, status: 1 });
+  console.log(gatepass);
   if (!gatepass) {
     return res.json({ success: false, msg: "Invalid Gatepass" });
   }
@@ -28,7 +29,7 @@ router.post("/verify", validateGatepass, securityAuth, async (req, res) => {
   }
 
   gatepass.status = 2;
-  gatepass = await gatepass.save();
+  await gatepass.save();
   const { time, department } = gatepass;
   const student = await Student.findOne({ email: gatepass.requestBy });
   if (!student) {
