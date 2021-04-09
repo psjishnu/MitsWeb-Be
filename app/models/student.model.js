@@ -52,6 +52,14 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  passout: {
+    type: Number,
+    required: false,
+  },
+  currentYear: {
+    tyep: Number,
+    required: false,
+  },
 });
 
 module.exports = mongoose.model("Student", studentSchema);
