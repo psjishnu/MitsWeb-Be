@@ -82,7 +82,15 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
 
 //router to add user
 router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
-  var { email, type, password, department } = req.body;
+  var {
+    email,
+    type,
+    password,
+    department,
+    currentYear,
+    passoutYear,
+  } = req.body;
+
   email = email.toLowerCase();
   //check if the user with that mail already created
   await User.findOne({ email: email }).then((savedUser) => {
@@ -118,6 +126,8 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
             email,
             password: hashedPassword,
             department,
+            currentYear: currentYear,
+            passoutYear,
           });
           await newStudent.save();
         }

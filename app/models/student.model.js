@@ -52,12 +52,12 @@ const studentSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  passout: {
+  currentYear: {
     type: Number,
     required: false,
   },
-  currentYear: {
-    tyep: Number,
+  passoutYear: {
+    type: Number,
     required: false,
   },
 });

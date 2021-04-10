@@ -20,6 +20,8 @@ let addUserSchema = Joi.object({
   type: Joi.string().required(),
   password: Joi.string().required(),
   department: Joi.string().required(),
+  currentYear: Joi.number(),
+  passoutYear: Joi.number(),
 });
 
 const validateDeletion = (req, res, next) => {
