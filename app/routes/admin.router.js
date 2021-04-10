@@ -45,6 +45,7 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     if (idUser.type === "student") {
       await Student.findOne({ email }).then((resp) => {
         idUser = resp;
+        idUser.department = req.body.department;
       });
     }
     if (idUser.type === "office") {
@@ -55,6 +56,8 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     if (idUser.type === "faculty") {
       await Faculty.findOne({ email }).then((resp) => {
         idUser = resp;
+        idUser.isHOD = req.body.isHOD;
+        idUser.department = req.body.department;
       });
     }
     if (idUser.type === "admin") {
@@ -71,7 +74,6 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     idUser.name = req.body.name;
     idUser.active = req.body.active;
     idUser.mobile = req.body.mobile;
-    idUser.isHOD = req.body.isHOD;
     const result = await idUser.save();
     res.json({ success: true, msg: result });
   }
@@ -174,8 +176,18 @@ router.get("/allfaculties", adminAuth, async (req, res) => {
           registered,
           isHOD,
           advicor,
+          department,
         } = resp[i];
-        retArr[i] = { name, email, mobile, active, registered, isHOD, advicor };
+        retArr[i] = {
+          name,
+          department,
+          email,
+          mobile,
+          active,
+          registered,
+          isHOD,
+          advicor,
+        };
       }
       res.json({ data: retArr, success: true });
     });
@@ -223,6 +235,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         dob,
         email,
         parentDetails,
+        department,
         active,
       } = resp[i];
       retArr[i] = {
@@ -230,6 +243,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         _id,
         pic,
         mobile,
+        department,
         address,
         bloodGroup,
         dob,
