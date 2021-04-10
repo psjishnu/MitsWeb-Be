@@ -58,6 +58,7 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
         idUser = resp;
         idUser.isHOD = req.body.isHOD;
         idUser.department = req.body.department;
+        idUser.advisor = req.body.advisor;
       });
     }
     if (idUser.type === "admin") {
