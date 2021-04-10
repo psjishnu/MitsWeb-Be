@@ -129,10 +129,17 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
           await newAdmin.save();
         }
         if (type === "faculty") {
+          const advInit = {
+            y1: "false",
+            y2: "false",
+            y3: "false",
+            y4: "false",
+          };
           const newFaculty = new Faculty({
             email,
             password: hashedPassword,
             department,
+            advisor: advInit,
           });
           await newFaculty.save();
         }
@@ -176,7 +183,7 @@ router.get("/allfaculties", adminAuth, async (req, res) => {
           active,
           registered,
           isHOD,
-          advicor,
+          advisor,
           department,
         } = resp[i];
         retArr[i] = {
@@ -187,7 +194,7 @@ router.get("/allfaculties", adminAuth, async (req, res) => {
           active,
           registered,
           isHOD,
-          advicor,
+          advisor,
         };
       }
       res.json({ data: retArr, success: true });

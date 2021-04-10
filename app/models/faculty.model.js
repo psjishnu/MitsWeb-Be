@@ -35,6 +35,7 @@ const facultySchema = new mongoose.Schema({
   advisor: {
     type: Object,
     required: false,
+    default: null,
   },
   department: {
     type: String,
