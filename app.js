@@ -3,30 +3,13 @@ const express = require("express");
 const router = express.Router();
 const path = require("path");
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
-const mongoose = require("mongoose");
 require("colors");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./swagger.json");
-
-// connect to database
-mongoose.connect(process.env.MONGOURI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false,
-});
-
-//on successful connection
-mongoose.connection.on("connected", () => {
-  console.log("Connected to database!!".green);
-});
-
-//on error connecting to database
-mongoose.connection.on("error", (err) => {
-  console.log(`error connecting to database ${err}`.red);
-});
+const { mongoConnect } = require("./app/functions/db");
 
 //allow cross origin requests
 app.use(cors());
@@ -35,11 +18,12 @@ app.use(cors());
 app.set("views", path.join(__dirname, "public"));
 app.set("view engine", "ejs");
 
-//default code of expressjs generator
+//connect to mongoDB
+
+mongoConnect();
 
 //to parse the incoming requests to json
 app.use(express.json());
-
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
