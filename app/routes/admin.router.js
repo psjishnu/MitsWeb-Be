@@ -46,6 +46,8 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
       await Student.findOne({ email }).then((resp) => {
         idUser = resp;
         idUser.department = req.body.department;
+        idUser.currentYear = req.body.currentYear;
+        idUser.passoutYear = req.body.passoutYear;
       });
     }
     if (idUser.type === "office") {
@@ -255,6 +257,8 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         parentDetails,
         department,
         active,
+        currentYear,
+        passoutYear,
       } = resp[i];
       retArr[i] = {
         name,
@@ -268,6 +272,8 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         email,
         parentDetails,
         active,
+        currentYear,
+        passoutYear,
       };
     }
     res.json({ success: true, data: retArr });
