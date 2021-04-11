@@ -104,10 +104,13 @@ router.get("/leaves", facultyAuth, async (req, res) => {
         yearArray = yearArray.concat(Number(key[1]));
       }
     }
-    const leaveApplications = await LeaveApplication.find({
+    var leaveApplications = await LeaveApplication.find({
       department: faculty.department,
       status: 0,
     });
+    if (!leaveApplications) {
+      leaveApplications = [];
+    }
     var finalArr = [];
     for (var i = 0; i < leaveApplications.length; i++) {
       const email = leaveApplications[i].requestBy;
