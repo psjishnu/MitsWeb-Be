@@ -4,6 +4,7 @@ const GatePass = require("../models/gatepass.model");
 const Faculty = require("../models/faculty.model");
 const { facultyAuth } = require("../functions/jwt");
 const Student = require("../models/student.model");
+const LeaveApplication = require("./../models/leaveapplication.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
 
@@ -86,6 +87,48 @@ router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
     status: gatepass.status,
   };
   return res.json({ success: true, data });
+});
+
+//get all leaves
+router.get("/leaves", facultyAuth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const faculty = await Faculty.findOne({ email });
+    if (!faculty) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    var yearArray = [];
+    const advisors = faculty.advisor;
+    for (key in advisors) {
+      if (advisors[key] === "true") {
+        yearArray = yearArray.concat(Number(key[1]));
+      }
+    }
+    const leaveApplications = await LeaveApplication.find({
+      department: faculty.department,
+      status: 0,
+    });
+    var finalArr = [];
+    for (var i = 0; i < leaveApplications.length; i++) {
+      const email = leaveApplications[i].requestBy;
+      const student = await Student.findOne({ email, currentYear: yearArray });
+      if (student) {
+        const data = {
+          name: student.name,
+          email: student.email,
+          fromTimestamp: leaveApplications[i].fromTimestamp,
+          toTimestamp: leaveApplications[i].toTimestamp,
+          year: student.currentYear,
+          description: leaveApplications[i].description,
+        };
+        finalArr = finalArr.concat(data);
+      }
+    }
+    return res.json({ success: false, data: finalArr });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
+  }
 });
 
 module.exports = router;
