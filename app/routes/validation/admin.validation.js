@@ -9,6 +9,8 @@ let updateSchema = Joi.object({
   isHOD: Joi.boolean(),
   department: Joi.string().required(),
   advisor: Joi.object(),
+  currentYear: Joi.number(),
+  passoutYear: Joi.number(),
 });
 
 let deleteSchema = Joi.object({
