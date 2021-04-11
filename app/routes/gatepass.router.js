@@ -30,6 +30,7 @@ router.get("/", auth, async (req, res) => {
   res.json({ data: passes.reverse(), success: true });
 });
 
+//get the gatepass request by user with id
 router.get("/view/:id", async (req, res) => {
   try {
     const _id = req.params.id;
@@ -68,6 +69,7 @@ router.get("/view/:id", async (req, res) => {
   }
 });
 
+//to cancel a gatepass request
 router.post("/cancel", auth, validateDeletion, async (req, res) => {
   try {
     const email = req.user.email;
@@ -115,6 +117,7 @@ router.post("/request", auth, validateCreation, async (req, res) => {
   }
 });
 
+//edit a gatepass request
 router.post("/edit", auth, validateEdit, async (req, res) => {
   try {
     const { email } = req.user;

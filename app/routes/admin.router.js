@@ -14,6 +14,7 @@ const {
   validateAddUser,
 } = require("./validation/admin.validation");
 
+//to delete a user
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
   const idUser = await User.findOne({ email: req.body.email });
   if (!idUser) {
@@ -36,6 +37,7 @@ router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
   }
 });
 
+//to update the user
 router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
   let idUser = await User.findOne({ email: req.body.email });
   if (!idUser) {
@@ -180,6 +182,7 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
   });
 });
 
+//get list of all faculties
 router.get("/allfaculties", adminAuth, async (req, res) => {
   try {
     var retArr = [];
@@ -214,6 +217,7 @@ router.get("/allfaculties", adminAuth, async (req, res) => {
   }
 });
 
+//get list of all admins
 router.get("/alladmins", adminAuth, async (req, res) => {
   try {
     let retArr = [];
@@ -239,6 +243,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
   }
 });
 
+//to get list of all students
 router.get("/allstudents", adminAuth, async (req, res) => {
   var retArr = [];
   await Student.find({}, (err, resp) => {

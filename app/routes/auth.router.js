@@ -205,6 +205,7 @@ router.post("/signin", validateLogin, async (req, res) => {
   });
 });
 
+//for google login
 router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
   const tokenVerifier = async (token) => {
     const verify = async () => {

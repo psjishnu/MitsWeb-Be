@@ -7,6 +7,7 @@ const moment = require("moment");
 const { validateGatepass } = require("./validation/security.validation");
 const { isValidObjectId } = require("mongoose");
 
+//to verify the gatepass issued to the user
 router.post("/verify", validateGatepass, securityAuth, async (req, res) => {
   const _id = req.body.gatepassId;
   if (!isValidObjectId(_id)) {

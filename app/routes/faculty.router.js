@@ -7,6 +7,7 @@ const Student = require("../models/student.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
 
+//api to get the gatepass requests for a particular faculty
 router.get("/gatepass", facultyAuth, async (req, res) => {
   try {
     const { email } = req.user;
@@ -35,6 +36,7 @@ router.get("/gatepass", facultyAuth, async (req, res) => {
   }
 });
 
+//to either update or reject a gatepass by faculty
 router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
   let { email } = req.user;
   const _id = req.params._id;
@@ -58,6 +60,7 @@ router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
   return res.json({ msg, success: true });
 });
 
+//get the gatepass by id
 router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
   let { email } = req.user;
   const _id = req.params._id;
