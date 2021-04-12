@@ -6,6 +6,7 @@ const Faculty = require("../models/faculty.model");
 const Student = require("../models/student.model");
 const Office = require("../models/office.model");
 const Security = require("../models/security.model");
+const Subject = require("../models/subject.model");
 const { adminAuth } = require("../functions/jwt");
 const bcrypt = require("bcryptjs");
 const {
@@ -13,6 +14,7 @@ const {
   validateDeletion,
   validateAddUser,
 } = require("./validation/admin.validation");
+const { validateSubjectCreation } = require("./validation/subject.validation");
 
 //to delete a user
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
@@ -284,5 +286,35 @@ router.get("/allstudents", adminAuth, async (req, res) => {
     res.json({ success: true, data: retArr });
   });
 });
+
+/* 
+----------------------------Subject Api's---------------------------------
+*/
+
+router.post(
+  "/subject",
+  validateSubjectCreation,
+  adminAuth,
+  async (req, res) => {
+    try {
+      const { name, code, department, semester, courseType } = req.body;
+      const subject = new Subject({
+        name,
+        code,
+        department,
+        semester,
+        courseType,
+      });
+      await subject.save();
+      return res.status(201).json({
+        message: "Subject added",
+        success: true,
+      });
+    } catch (err) {
+      console.log(`Failed to add subject with error:${err.message}`.red);
+      res.json({ success: false, msg: err.message });
+    }
+  }
+);
 
 module.exports = router;
