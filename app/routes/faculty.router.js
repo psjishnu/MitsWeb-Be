@@ -123,11 +123,56 @@ router.get("/leaves", facultyAuth, async (req, res) => {
           toTimestamp: leaveApplications[i].toTimestamp,
           year: student.currentYear,
           description: leaveApplications[i].description,
+          _id: leaveApplications[i]._id,
         };
         finalArr = finalArr.concat(data);
       }
     }
-    return res.json({ success: false, data: finalArr });
+    return res.json({ success: false, data: finalArr.reverse() });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
+router.get("/leaves/:_id/:action", facultyAuth, async (req, res) => {
+  try {
+    let { email } = req.user;
+    const _id = req.params._id;
+    const action = Number(req.params.action);
+    if (!(action === 1 || action === -1) || !isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id or Action" });
+    }
+    const faculty = await Faculty.findOne({ email });
+    if (!faculty) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    var yearArray = [];
+    const advisors = faculty.advisor;
+    for (key in advisors) {
+      if (advisors[key] === "true") {
+        yearArray = yearArray.concat(Number(key[1]));
+      }
+    }
+    const leaveApplications = await LeaveApplication.findOne({
+      _id,
+      department: faculty.department,
+      status: 0,
+    });
+    if (!leaveApplications) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const student = await Student.findOne({
+      email: leaveApplications.requestBy,
+      currentYear: yearArray,
+    });
+    if (!student) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    leaveApplications.status = action;
+    await leaveApplications.save();
+    const msg = action === 1 ? "Gatepass approved" : "Gatepass rejected";
+    return res.json({ success: true, msg });
   } catch (err) {
     console.log(err);
     return res.json({ success: false, msg: "Error" });
