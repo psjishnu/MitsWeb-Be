@@ -7,6 +7,7 @@ const Student = require("../models/student.model");
 const Office = require("../models/office.model");
 const Security = require("../models/security.model");
 const Subject = require("../models/subject.model");
+const Timetable = require("../models/timetable.model");
 const { adminAuth } = require("../functions/jwt");
 const bcrypt = require("bcryptjs");
 const {
@@ -365,6 +366,26 @@ router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
     }
   } catch (err) {
     console.log(`Failed to edit subject with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+/* 
+----------------------------Timetable Api's---------------------------------
+*/
+
+//to create a new time table
+router.post("/timetable", adminAuth, async (req, res) => {
+  try {
+    const timeTable = new Timetable(req.body);
+    await timeTable.save();
+    return res.json({
+      success: true,
+      msg: "Time Table created.",
+      data: timeTable,
+    });
+  } catch (err) {
+    console.log(`Failed to create timetable with error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }
 });
