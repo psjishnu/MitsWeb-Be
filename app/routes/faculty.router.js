@@ -122,6 +122,7 @@ router.get("/leaves", facultyAuth, async (req, res) => {
           fromTimestamp: leaveApplications[i].fromTimestamp,
           toTimestamp: leaveApplications[i].toTimestamp,
           year: student.currentYear,
+          department: student.department,
           description: leaveApplications[i].description,
           _id: leaveApplications[i]._id,
         };
