@@ -19,7 +19,30 @@ router.get("/subject", async (req, res) => {
         .json({ success: false, msg: "No subjects information found!!" });
     }
   } catch (err) {
-    console.log(`Failed to edit subject with error:${err.message}`.red);
+    console.log(`Failed to return subjects list with error:${err.message}`.red);
+    return res.status(500).json({ success: false, msg: err.message });
+  }
+});
+
+//return department and semester wise subjects list
+router.get("/subject/:department/:semester", async (req, res) => {
+  try {
+    const department = req.params.department;
+    const semester = req.params.semester;
+    const subjects = await Subject.find({
+      department,
+      semester,
+    });
+
+    if (subjects && subjects.length > 0) {
+      return res.status(200).json({ success: true, data: subjects });
+    } else {
+      return res
+        .status(202)
+        .json({ success: false, msg: "No subjects information found!!" });
+    }
+  } catch (err) {
+    console.log(`Failed to return subjects list with error:${err.message}`.red);
     return res.status(500).json({ success: false, msg: err.message });
   }
 });
