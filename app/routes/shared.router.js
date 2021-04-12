@@ -1,14 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Subject = require("../models/subject.model");
-const { auth } = require("../functions/jwt");
 
 /* 
 ----------------------------Subject Api's---------------------------------
 */
 
 //return subjects list
-router.get("/subject", auth, async (req, res) => {
+router.get("/subject", async (req, res) => {
   try {
     const subjects = await Subject.find();
 
@@ -27,7 +26,7 @@ router.get("/subject", auth, async (req, res) => {
 });
 
 //return department and semester wise subjects list
-router.get("/subject/:department/:semester", auth, async (req, res) => {
+router.get("/subject/:department/:semester", async (req, res) => {
   try {
     const department = req.params.department;
     const semester = req.params.semester;
