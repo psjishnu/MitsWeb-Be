@@ -303,6 +303,10 @@ router.post(
   async (req, res) => {
     try {
       const { name, code, department, semester, courseType } = req.body;
+      const result = await Subject.findOne({ code });
+      if (result) {
+        return res.json({ success: false, msg: "Subject exists" });
+      }
       const subject = new Subject({
         name,
         code,
