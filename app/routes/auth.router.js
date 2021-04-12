@@ -27,7 +27,7 @@ router.post("/signup", validateRegistration, async (req, res) => {
   var { name, email, password, confirm, number, type, oldpassword } = req.body;
 
   if (password !== confirm) {
-    return res.status(422).json({ error: "Password not same", success: false });
+    return res.json({ error: "Password not same", success: false });
   }
   //check if the user with that mail already exists
   await User.findOne({ email: email })
@@ -194,9 +194,10 @@ router.post("/signin", validateLogin, async (req, res) => {
             user: { _id, name, photo },
           });
         } else {
-          return res
-            .status(422)
-            .json({ success: false, msg: "Invalid email or password!!" });
+          return res.json({
+            success: false,
+            msg: "Invalid email or password!!",
+          });
         }
       })
       .catch((err) => {

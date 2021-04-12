@@ -311,13 +311,13 @@ router.post(
         courseType,
       });
       await subject.save();
-      return res.status(201).json({
+      return res.json({
         message: "Subject added",
         success: true,
       });
     } catch (err) {
       console.log(`Failed to add subject with error:${err.message}`.red);
-      return res.status(500).json({ success: false, msg: err.message });
+      return res.json({ success: false, msg: err.message });
     }
   }
 );
@@ -340,11 +340,11 @@ router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
         msg: "Couldn't find the subject and update it.",
       });
     } else {
-      return res.status(200).json({ success: true, data: result });
+      return res.json({ success: true, data: result });
     }
   } catch (err) {
     console.log(`Failed to edit subject with error:${err.message}`.red);
-    return res.status(500).json({ success: false, msg: err.message });
+    return res.json({ success: false, msg: err.message });
   }
 });
 
