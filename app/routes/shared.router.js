@@ -12,7 +12,7 @@ router.get("/subject", async (req, res) => {
     const subjects = await Subject.find();
 
     if (subjects && subjects.length > 0) {
-      return res.json({ success: true, data: subjects });
+      return res.json({ success: true, data: subjects.reverse() });
     } else {
       return res.json({
         success: false,
@@ -36,7 +36,7 @@ router.get("/subject/:department/:semester", async (req, res) => {
     });
 
     if (subjects && subjects.length > 0) {
-      return res.json({ success: true, data: subjects });
+      return res.json({ success: true, data: subjects.reverse() });
     } else {
       return res.json({
         success: false,

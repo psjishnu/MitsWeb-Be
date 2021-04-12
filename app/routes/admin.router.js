@@ -296,6 +296,23 @@ router.get("/allstudents", adminAuth, async (req, res) => {
 */
 
 //to create a new suject
+
+router.delete("/subject/:_id", adminAuth, async (req, res) => {
+  try {
+    const _id = req.params._id;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+
+    const result = await Subject.deleteOne({ _id });
+    if (!result) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    return res.json({ success: true, msg: "Subject Deleted" });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
 router.post(
   "/subject",
   validateSubjectCreation,
