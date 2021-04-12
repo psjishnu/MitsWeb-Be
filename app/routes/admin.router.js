@@ -295,6 +295,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
 ----------------------------Subject Api's---------------------------------
 */
 
+//to create a new suject
 router.post(
   "/subject",
   validateSubjectCreation,
@@ -344,6 +345,19 @@ router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
   } catch (err) {
     console.log(`Failed to edit subject with error:${err.message}`.red);
     return res.status(500).json({ success: false, msg: err.message });
+  }
+});
+
+//return subjects list
+router.get("/subject", async (req, res) => {
+  const subjects = await Subject.find();
+
+  if (subjects && subjects.length > 0) {
+    return res.status(200).json({ success: true, data: subjects });
+  } else {
+    return res
+      .status(202)
+      .json({ success: false, msg: "No subjects information found!!" });
   }
 });
 
