@@ -14,7 +14,11 @@ const {
   validateDeletion,
   validateAddUser,
 } = require("./validation/admin.validation");
-const { validateSubjectCreation } = require("./validation/subject.validation");
+const {
+  validateSubjectCreation,
+  validateSubjectEdit,
+} = require("./validation/subject.validation");
+const { isValidObjectId } = require("mongoose");
 
 //to delete a user
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
@@ -312,9 +316,35 @@ router.post(
       });
     } catch (err) {
       console.log(`Failed to add subject with error:${err.message}`.red);
-      res.json({ success: false, msg: err.message });
+      return res.status(500).json({ success: false, msg: err.message });
     }
   }
 );
+
+//edit subject information
+router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
+  try {
+    const { _id, name, code, department, semester, courseType } = req.body;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    const result = await Subject.findOneAndUpdate(
+      { _id },
+      { name, code, department, courseType, semester },
+      { returnOriginal: false }
+    );
+    if (!result) {
+      return res.json({
+        success: false,
+        msg: "Couldn't find the subject and update it.",
+      });
+    } else {
+      return res.status(200).json({ success: true, data: result });
+    }
+  } catch (err) {
+    console.log(`Failed to edit subject with error:${err.message}`.red);
+    return res.status(500).json({ success: false, msg: err.message });
+  }
+});
 
 module.exports = router;
