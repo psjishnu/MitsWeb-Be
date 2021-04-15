@@ -23,24 +23,28 @@ const { isValidObjectId } = require("mongoose");
 
 //to delete a user
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
-  const idUser = await User.findOne({ email: req.body.email });
-  if (!idUser) {
-    return res.json({ success: false, msg: "invlid id" });
-  } else {
-    const email = idUser.email;
-    await User.deleteOne({ email });
-    if (idUser.type === "student") {
-      await Student.deleteOne({ email });
-    } else if (idUser.type === "admin") {
-      await Admin.deleteOne({ email });
-    } else if (idUser.type === "faculty") {
-      await Faculty.deleteOne({ email });
-    } else if (idUser.type === "office") {
-      await Office.deleteOne({ email });
-    } else if (idUser.type === "security") {
-      await Security.deleteOne({ email });
+  try {
+    const idUser = await User.findOne({ email: req.body.email });
+    if (!idUser) {
+      return res.json({ success: false, msg: "invlid id" });
+    } else {
+      const email = idUser.email;
+      await User.deleteOne({ email });
+      if (idUser.type === "student") {
+        await Student.deleteOne({ email });
+      } else if (idUser.type === "admin") {
+        await Admin.deleteOne({ email });
+      } else if (idUser.type === "faculty") {
+        await Faculty.deleteOne({ email });
+      } else if (idUser.type === "office") {
+        await Office.deleteOne({ email });
+      } else if (idUser.type === "security") {
+        await Security.deleteOne({ email });
+      }
+      return res.json({ success: true, msg: "user deleted" });
     }
-    return res.json({ success: true, msg: "user deleted" });
+  } catch (err) {
+    res.json({ success: false, msg: err.message });
   }
 });
 
