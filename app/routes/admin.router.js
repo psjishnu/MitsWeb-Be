@@ -381,7 +381,12 @@ router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
 //to create a new time table
 router.post("/timetable", adminAuth, async (req, res) => {
   try {
-    const timeTable = new Timetable(req.body);
+    const { semesterDepartment, periodTimings } = req.body;
+    const timeTable = new Timetable({
+      semester: semesterDepartment.semester,
+      department: semesterDepartment.department,
+      periodTimings,
+    });
     await timeTable.save();
     return res.json({
       success: true,

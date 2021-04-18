@@ -9,16 +9,14 @@ const timetableSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  timetable: [
+  periodTimings: [
     {
       day: String,
-      periods: [
+      timings: [
         {
-          periodTime: {
-            start: String,
-            end: String,
-          },
           subject: String,
+          startTime: String,
+          endTime: String,
         },
       ],
     },
