@@ -1,5 +1,5 @@
 const generateStudentId = (rollNo, department, passoutYear) => {
-  var finalrollNo = "None",
+  let finalrollNo = "None",
     zeros = "";
   for (var i = 0; i < 3 - String(Number(rollNo)).length; i++) {
     zeros += "0";
@@ -13,6 +13,14 @@ const generateStudentId = (rollNo, department, passoutYear) => {
     Number(rollNo);
 
   return finalrollNo;
+};
+
+const generateFacultyId = (joiningYear, internalId) => {
+  if (joiningYear && internalId) {
+    const facultyId = `EMP${internalId}/${joiningYear % 100}`;
+    return facultyId;
+  }
+  return -1;
 };
 
 module.exports = {
