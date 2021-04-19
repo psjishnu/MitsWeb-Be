@@ -59,7 +59,7 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
   } else {
     const { email } = req.body;
     if (idUser.type === "student") {
-      const idUser = await Student.findOne({ email });
+      idUser = await Student.findOne({ email });
       const { department, currentYear, passoutYear, rollNo } = req.body;
       idUser.department = department;
       idUser.currentYear = currentYear;
@@ -67,7 +67,6 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
       const studentId = generateStudentId(rollNo, department, passoutYear);
       const student = await Student.findOne({ studentId });
       if (student && student.email !== email) {
-        console.log("err");
         return res.json({ msg: "Invalid rollno", success: false });
       }
       idUser.studentId = studentId;
