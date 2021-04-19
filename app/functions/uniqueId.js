@@ -25,4 +25,5 @@ const generateFacultyId = (joiningYear, internalId) => {
 
 module.exports = {
   generateStudentId,
+  generateFacultyId,
 };
