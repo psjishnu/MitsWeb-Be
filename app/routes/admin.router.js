@@ -9,6 +9,7 @@ const Security = require("../models/security.model");
 const Subject = require("../models/subject.model");
 const Timetable = require("../models/timetable.model");
 const { adminAuth } = require("../functions/jwt");
+const { generateStudentId } = require("../functions/uniqueId");
 const bcrypt = require("bcryptjs");
 const {
   validateUpdation,
@@ -20,6 +21,8 @@ const {
   validateSubjectEdit,
 } = require("./validation/subject.validation");
 const { isValidObjectId } = require("mongoose");
+const { generateHTML } = require("swagger-ui-express");
+const studentModel = require("../models/student.model");
 
 //to delete a user
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
@@ -56,12 +59,18 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
   } else {
     const { email } = req.body;
     if (idUser.type === "student") {
-      await Student.findOne({ email }).then((resp) => {
-        idUser = resp;
-        idUser.department = req.body.department;
-        idUser.currentYear = req.body.currentYear;
-        idUser.passoutYear = req.body.passoutYear;
-      });
+      const idUser = await Student.findOne({ email });
+      const { department, currentYear, passoutYear, rollNo } = req.body;
+      idUser.department = department;
+      idUser.currentYear = currentYear;
+      idUser.passoutYear = passoutYear;
+      const studentId = generateStudentId(rollNo, department, passoutYear);
+      const student = await Student.findOne({ studentId });
+      if (student && student.email !== email) {
+        console.log("err");
+        return res.json({ msg: "Invalid rollno", success: false });
+      }
+      idUser.studentId = studentId;
     }
     if (idUser.type === "office") {
       await Office.findOne({ email }).then((resp) => {
@@ -90,8 +99,8 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     idUser.name = req.body.name;
     idUser.active = req.body.active;
     idUser.mobile = req.body.mobile;
-    const result = await idUser.save();
-    res.json({ success: true, msg: result });
+    await idUser.save();
+    res.json({ success: true, msg: "User updated" });
   }
 });
 
@@ -104,6 +113,7 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
     department,
     currentYear,
     passoutYear,
+    rollNo,
   } = req.body;
 
   email = email.toLowerCase();
@@ -137,12 +147,20 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
           type,
         });
         if (type === "student") {
+          var studentId = generateStudentId(rollNo, department, passoutYear);
+
+          const student = await Student.findOne({ studentId });
+          if (student) {
+            return res.json({ success: false, msg: "Invalid Roll no" });
+          }
+
           const newStudent = new Student({
             email,
             password: hashedPassword,
             department,
             currentYear: currentYear,
             passoutYear,
+            studentId,
           });
           await newStudent.save();
         }
@@ -182,11 +200,11 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
           });
           await newSecurity.save();
         }
-        user.save().then((user) => {
-          res.json({
-            success: true,
-            message: "User created and stored successfully!!",
-          });
+
+        await user.save();
+        return res.json({
+          success: true,
+          message: "User created and stored successfully!!",
         });
       })
       .catch((err) => {
@@ -259,7 +277,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
 //to get list of all students
 router.get("/allstudents", adminAuth, async (req, res) => {
   var retArr = [];
-  await Student.find({}, (err, resp) => {
+  await Student.find({}, async (err, resp) => {
     for (let i = 0; i < resp.length; i++) {
       const {
         name,
@@ -275,7 +293,13 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         active,
         currentYear,
         passoutYear,
+        studentId,
       } = resp[i];
+      var rollNo = "";
+      if (studentId) {
+        rollNo = Number(studentId.substr(4, 7));
+      }
+
       retArr[i] = {
         name,
         _id,
@@ -290,6 +314,8 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         active,
         currentYear,
         passoutYear,
+        rollNo,
+        studentId,
       };
     }
     res.json({ success: true, data: retArr });
@@ -397,6 +423,12 @@ router.post("/timetable", adminAuth, async (req, res) => {
     console.log(`Failed to create timetable with error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }
+});
+
+router.get("/timetable", adminAuth, async (req, res) => {
+  const timetables = await Timetable.find({});
+
+  return res.json({ success: true, data: timetables });
 });
 
 module.exports = router;

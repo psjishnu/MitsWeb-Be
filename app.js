@@ -32,13 +32,10 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use(router);
 
-router.get("/", (req, res) => {
-  res.render("index");
-});
-
 //import routes
 const adminRouter = require("./app/routes/admin.router");
 const authRouter = require("./app/routes/auth.router");
+const defaultRouter = require("./app/routes/default.router");
 const facultyRouter = require("./app/routes/faculty.router");
 const gatepassRouter = require("./app/routes/gatepass.router");
 const leaveapplicationRouter = require("./app/routes/leaveapplication.router");
@@ -51,6 +48,7 @@ app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 //use the  routes
 app.use("/admin", adminRouter);
 app.use("/auth", authRouter);
+app.use("/", defaultRouter);
 app.use("/faculty", facultyRouter);
 app.use("/gatepass", gatepassRouter);
 app.use("/leaveapplication", leaveapplicationRouter);

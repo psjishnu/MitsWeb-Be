@@ -4,13 +4,14 @@ let updateSchema = Joi.object({
   name: Joi.string().required(),
   type: Joi.string().required(),
   email: Joi.string(),
-  mobile: Joi.number().required(),
-  active: Joi.boolean().required(),
+  mobile: Joi.any(),
+  active: Joi.boolean(),
   isHOD: Joi.boolean(),
-  department: Joi.string().required(),
+  department: Joi.string(),
   advisor: Joi.object(),
-  currentYear: Joi.number(),
-  passoutYear: Joi.number(),
+  currentYear: Joi.any(),
+  passoutYear: Joi.any(),
+  rollNo: Joi.any(),
 });
 
 let deleteSchema = Joi.object({
@@ -22,8 +23,9 @@ let addUserSchema = Joi.object({
   type: Joi.string().required(),
   password: Joi.string().required(),
   department: Joi.string().required(),
-  currentYear: Joi.number(),
-  passoutYear: Joi.number(),
+  currentYear: Joi.any(),
+  passoutYear: Joi.any(),
+  rollNo: Joi.any().required(),
 });
 
 const validateDeletion = (req, res, next) => {

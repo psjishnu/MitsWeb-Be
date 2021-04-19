@@ -60,6 +60,10 @@ const studentSchema = new mongoose.Schema({
     type: Number,
     required: false,
   },
+  studentId: {
+    type: String,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model("Student", studentSchema);
