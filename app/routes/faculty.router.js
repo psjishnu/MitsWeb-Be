@@ -5,6 +5,7 @@ const Faculty = require("../models/faculty.model");
 const { facultyAuth } = require("../functions/jwt");
 const Student = require("../models/student.model");
 const LeaveApplication = require("./../models/leaveapplication.model");
+const Marks = require("./../models/marks.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
 
@@ -197,6 +198,33 @@ router.get("/students/:semester/:department", facultyAuth, async (req, res) => {
   } catch (err) {
     console.log(err);
     return res.json({ success: false, msg: "Error" });
+  }
+});
+
+/* 
+----------------------------Marks Api's---------------------------------
+*/
+
+//to add a student's subject marks
+router.post("/marks", facultyAuth, async (req, res) => {
+  try {
+    const { studentId, teacherId, subjectId, examType, marks } = req.body;
+    const subjectMark = new Marks({
+      studentId,
+      teacherId,
+      subjectId,
+      examType,
+      marks,
+    });
+    await subjectMark.save();
+    return res.json({
+      success: true,
+      msg: "Marks entered.",
+      data: subjectMark,
+    });
+  } catch (err) {
+    console.log(`Failed to enter marks with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
   }
 });
 
