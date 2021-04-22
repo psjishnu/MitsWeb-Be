@@ -307,8 +307,6 @@ router.get("/allstudents", adminAuth, async (req, res) => {
 ----------------------------Subject Api's---------------------------------
 */
 
-//to create a new suject
-
 router.delete("/subject/:_id", adminAuth, async (req, res) => {
   try {
     const _id = req.params._id;
@@ -325,13 +323,22 @@ router.delete("/subject/:_id", adminAuth, async (req, res) => {
     return res.json({ success: false, msg: "Error" });
   }
 });
+
+//to create a new suject
 router.post(
   "/subject",
   validateSubjectCreation,
   adminAuth,
   async (req, res) => {
     try {
-      const { name, code, department, semester, courseType } = req.body;
+      const {
+        name,
+        code,
+        department,
+        semester,
+        courseType,
+        taughtBy,
+      } = req.body;
       const result = await Subject.findOne({ code, department, semester });
       if (result) {
         return res.json({ success: false, msg: "Subject exists" });
@@ -342,6 +349,7 @@ router.post(
         department,
         semester,
         courseType,
+        taughtBy,
       });
       await subject.save();
       return res.json({

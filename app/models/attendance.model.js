@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { ObjectId } = require("mongoose").Schema.Types;
 
 const attendanceScheme = new mongoose.Schema({
   department: {

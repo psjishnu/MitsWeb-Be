@@ -6,6 +6,7 @@ let createSubjectSchema = Joi.object({
   courseType: Joi.string().required(),
   department: Joi.string().required(),
   semester: Joi.number().required(),
+  taughtBy: Joi.any(),
 });
 
 let editSubjectSchema = Joi.object({

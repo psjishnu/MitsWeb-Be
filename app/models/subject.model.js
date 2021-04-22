@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { ObjectId } = require("mongoose").Schema.Types;
 
 const subjectSchema = new mongoose.Schema({
   name: {
@@ -20,6 +21,10 @@ const subjectSchema = new mongoose.Schema({
   },
   department: {
     type: String,
+    required: true,
+  },
+  taughtBy: {
+    type: Object,
     required: true,
   },
 });
