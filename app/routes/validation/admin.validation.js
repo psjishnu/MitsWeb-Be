@@ -25,7 +25,8 @@ let addUserSchema = Joi.object({
   department: Joi.string().required(),
   currentYear: Joi.any(),
   passoutYear: Joi.any(),
-  rollNo: Joi.any().required(),
+  joiningYear: Joi.any(),
+  rollNo: Joi.any(),
 });
 
 const validateDeletion = (req, res, next) => {

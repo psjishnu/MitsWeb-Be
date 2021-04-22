@@ -17,7 +17,8 @@ const generateStudentId = (rollNo, department, passoutYear) => {
 
 const generateFacultyId = (joiningYear, internalId) => {
   if (joiningYear && internalId) {
-    const facultyId = `EMP${internalId}/${joiningYear % 100}`;
+    let id = ("000" + internalId).slice(-3);
+    const facultyId = `EMP${id}/${joiningYear % 100}`;
     return facultyId;
   }
   return -1;

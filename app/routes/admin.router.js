@@ -9,7 +9,10 @@ const Security = require("../models/security.model");
 const Subject = require("../models/subject.model");
 const Timetable = require("../models/timetable.model");
 const { adminAuth } = require("../functions/jwt");
-const { generateStudentId } = require("../functions/uniqueId");
+const {
+  generateStudentId,
+  generateFacultyId,
+} = require("../functions/uniqueId");
 const bcrypt = require("bcryptjs");
 const {
   validateUpdation,
@@ -21,8 +24,6 @@ const {
   validateSubjectEdit,
 } = require("./validation/subject.validation");
 const { isValidObjectId } = require("mongoose");
-const { generateHTML } = require("swagger-ui-express");
-const studentModel = require("../models/student.model");
 
 //to delete a user
 router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
@@ -105,48 +106,48 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
 
 //router to add user
 router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
-  var {
-    email,
-    type,
-    password,
-    department,
-    currentYear,
-    passoutYear,
-    rollNo,
-  } = req.body;
+  try {
+    let {
+      email,
+      type,
+      password,
+      department,
+      currentYear,
+      passoutYear,
+      joiningYear,
+      rollNo,
+    } = req.body;
 
-  email = email.toLowerCase();
-  //check if the user with that mail already created
-  await User.findOne({ email: email }).then((savedUser) => {
-    if (savedUser) {
-      return res.json({
-        error: "User with that email already exists!!",
-        success: false,
-      });
-    }
-    if (
-      !(
-        type === "admin" ||
-        type === "student" ||
-        type == "faculty" ||
-        type === "security" ||
-        type === "office"
-      )
-    ) {
-      return res.json({
-        success: false,
-        error: "Invalid type",
-      });
-    }
-    bcrypt
-      .hash(password, 12)
-      .then(async (hashedPassword) => {
+    email = email.toLowerCase();
+    //check if the user with that mail already created
+    await User.findOne({ email: email }).then((savedUser) => {
+      if (savedUser) {
+        return res.json({
+          error: "User with that email already exists!!",
+          success: false,
+        });
+      }
+      if (
+        !(
+          type === "admin" ||
+          type === "student" ||
+          type == "faculty" ||
+          type === "security" ||
+          type === "office"
+        )
+      ) {
+        return res.json({
+          success: false,
+          error: "Invalid type",
+        });
+      }
+      bcrypt.hash(password, 12).then(async (hashedPassword) => {
         const user = new User({
           email,
           type,
         });
         if (type === "student") {
-          var studentId = generateStudentId(rollNo, department, passoutYear);
+          let studentId = generateStudentId(rollNo, department, passoutYear);
 
           const student = await Student.findOne({ studentId });
           if (student) {
@@ -163,6 +164,7 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
           });
           await newStudent.save();
         }
+
         if (type === "admin") {
           const newAdmin = new Admin({
             email,
@@ -170,7 +172,10 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
           });
           await newAdmin.save();
         }
+
         if (type === "faculty") {
+          const facultyId = generateFacultyId(joiningYear, rollNo);
+
           const advInit = {
             y1: "false",
             y2: "false",
@@ -182,9 +187,11 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
             password: hashedPassword,
             department,
             advisor: advInit,
+            facultyId,
           });
           await newFaculty.save();
         }
+
         if (type === "office") {
           const newOffice = new Office({
             email,
@@ -192,6 +199,7 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
           });
           await newOffice.save();
         }
+
         if (type === "security") {
           const newSecurity = new Security({
             email,
@@ -205,17 +213,18 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
           success: true,
           message: "User created and stored successfully!!",
         });
-      })
-      .catch((err) => {
-        console.log(err);
       });
-  });
+    });
+  } catch (err) {
+    console.log(`Failed to add user with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //get list of all faculties
 router.get("/allfaculties", adminAuth, async (req, res) => {
   try {
-    var retArr = [];
+    let retArr = [];
 
     await Faculty.find({}, (err, resp) => {
       for (let i = 0; i < resp.length; i++) {
@@ -252,7 +261,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
   try {
     let retArr = [];
     await Admin.find({}, (err, resp) => {
-      var j = 0;
+      let j = 0;
 
       for (let i = 0; i < resp.length; i++) {
         const { name, mobile, active, registered, email } = resp[i];
@@ -275,7 +284,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
 
 //to get list of all students
 router.get("/allstudents", adminAuth, async (req, res) => {
-  var retArr = [];
+  let retArr = [];
   await Student.find({}, async (err, resp) => {
     for (let i = 0; i < resp.length; i++) {
       const {
@@ -294,7 +303,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
         passoutYear,
         studentId,
       } = resp[i];
-      var rollNo = "";
+      let rollNo = "";
       if (studentId) {
         rollNo = Number(studentId.substr(4, 7));
       }
