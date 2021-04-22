@@ -228,4 +228,16 @@ router.post("/marks", facultyAuth, async (req, res) => {
   }
 });
 
+//api to get marks (for test purpose)
+router.get("/marks", async (req, res) => {
+  try {
+    const { examType, studentId } = req.body;
+    const results = await Marks.find({ examType, studentId });
+    return res.json({ success: true, data: results });
+  } catch (err) {
+    console.log(`Failed to get marks with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
 module.exports = router;
