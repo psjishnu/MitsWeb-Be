@@ -176,12 +176,21 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
         if (type === "faculty") {
           const facultyId = generateFacultyId(joiningYear, rollNo);
 
+          const faculty = await Faculty.findOne({ facultyId });
+          if (faculty) {
+            return res.json({
+              success: false,
+              msg: "Faculty id already assigned",
+            });
+          }
+
           const advInit = {
             y1: "false",
             y2: "false",
             y3: "false",
             y4: "false",
           };
+
           const newFaculty = new Faculty({
             email,
             password: hashedPassword,
