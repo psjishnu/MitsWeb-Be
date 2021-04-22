@@ -366,13 +366,21 @@ router.post(
 //edit subject information
 router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
   try {
-    const { _id, name, code, department, semester, courseType } = req.body;
+    const {
+      _id,
+      name,
+      code,
+      department,
+      semester,
+      courseType,
+      taughtBy,
+    } = req.body;
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid Id" });
     }
     const result = await Subject.findOneAndUpdate(
       { _id },
-      { name, code, department, courseType, semester },
+      { name, code, department, courseType, semester, taughtBy },
       { returnOriginal: false }
     );
     if (!result) {
