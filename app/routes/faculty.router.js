@@ -182,25 +182,30 @@ router.get("/leaves/:_id/:action", facultyAuth, async (req, res) => {
   }
 });
 
-router.get("/students/:semester/:department", facultyAuth, async (req, res) => {
-  try {
-    const email = req.user.email;
-    const { semester, department } = req.params;
-    const currentYear =
-      semester === 1 || semester === 2
-        ? 1
-        : semester === 3 || semester === 4
-        ? 2
-        : semester === 5 || semester === 6
-        ? 3
-        : 4;
-    const students = await Student.find({ department, currentYear });
-    return res.json({ success: true, data: students || [] });
-  } catch (err) {
-    console.log(err);
-    return res.json({ success: false, msg: "Error" });
+router.get(
+  "/students/:semester/:department/:day",
+  facultyAuth,
+  async (req, res) => {
+    try {
+      const email = req.user.email;
+      const { semester, department, day } = req.params;
+      console.log(day);
+      const currentYear =
+        semester === 1 || semester === 2
+          ? 1
+          : semester === 3 || semester === 4
+          ? 2
+          : semester === 5 || semester === 6
+          ? 3
+          : 4;
+      const students = await Student.find({ department, currentYear });
+      return res.json({ success: true, data: students || [] });
+    } catch (err) {
+      console.log(err);
+      return res.json({ success: false, msg: "Error" });
+    }
   }
-});
+);
 
 /* 
 ----------------------------Marks Api's---------------------------------
