@@ -16,6 +16,7 @@ let editSubjectSchema = Joi.object({
   courseType: Joi.string(),
   department: Joi.string(),
   semester: Joi.number(),
+  taughtBy: Joi.any(),
 });
 
 const validateSubjectCreation = (req, res, next) => {
