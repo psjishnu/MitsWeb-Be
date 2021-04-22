@@ -233,61 +233,25 @@ router.post("/adduser", validateAddUser, adminAuth, async (req, res) => {
 //get list of all faculties
 router.get("/allfaculties", adminAuth, async (req, res) => {
   try {
-    let retArr = [];
-
-    await Faculty.find({}, (err, resp) => {
-      for (let i = 0; i < resp.length; i++) {
-        const {
-          name,
-          email,
-          mobile,
-          active,
-          registered,
-          isHOD,
-          advisor,
-          department,
-        } = resp[i];
-        retArr[i] = {
-          name,
-          department,
-          email,
-          mobile,
-          active,
-          registered,
-          isHOD,
-          advisor,
-        };
-      }
-      res.json({ data: retArr, success: true });
-    });
+    const faculties = await Faculty.find().select("-password");
+    return res.json({ success: true, data: faculties });
   } catch (err) {
-    res.json({ msg: err, success: false });
+    console.log(`Failed to get all faculties with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
   }
 });
 
 //get list of all admins
 router.get("/alladmins", adminAuth, async (req, res) => {
   try {
-    let retArr = [];
-    await Admin.find({}, (err, resp) => {
-      let j = 0;
+    const admins = await Admin.find({
+      email: { $ne: "admin@mitsweb.com" },
+    }).select("-password");
 
-      for (let i = 0; i < resp.length; i++) {
-        const { name, mobile, active, registered, email } = resp[i];
-        if (req.user.email !== email && email !== "admin@mitsweb.com") {
-          retArr[j++] = {
-            name,
-            mobile,
-            email,
-            active,
-            registered,
-          };
-        }
-      }
-      res.json({ data: retArr, success: true });
-    });
+    return res.json({ success: true, data: admins });
   } catch (err) {
-    res.json({ success: false, msg: err });
+    console.log(`Failed to get admims with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
   }
 });
 
