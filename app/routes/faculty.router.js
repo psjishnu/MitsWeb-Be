@@ -6,6 +6,7 @@ const { facultyAuth } = require("../functions/jwt");
 const Student = require("../models/student.model");
 const LeaveApplication = require("./../models/leaveapplication.model");
 const Marks = require("./../models/marks.model");
+const Subjects = require("../models/subject.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
 
@@ -181,25 +182,30 @@ router.get("/leaves/:_id/:action", facultyAuth, async (req, res) => {
   }
 });
 
-router.get("/students/:semester/:department", facultyAuth, async (req, res) => {
-  try {
-    const email = req.user.email;
-    const { semester, department } = req.params;
-    const currentYear =
-      semester === 1 || semester === 2
-        ? 1
-        : semester === 3 || semester === 4
-        ? 2
-        : semester === 5 || semester === 6
-        ? 3
-        : 4;
-    const students = await Student.find({ department, currentYear });
-    return res.json({ success: true, data: students || [] });
-  } catch (err) {
-    console.log(err);
-    return res.json({ success: false, msg: "Error" });
+router.get(
+  "/students/:semester/:department/:day",
+  facultyAuth,
+  async (req, res) => {
+    try {
+      const email = req.user.email;
+      const { semester, department, day } = req.params;
+      console.log(day);
+      const currentYear =
+        semester === 1 || semester === 2
+          ? 1
+          : semester === 3 || semester === 4
+          ? 2
+          : semester === 5 || semester === 6
+          ? 3
+          : 4;
+      const students = await Student.find({ department, currentYear });
+      return res.json({ success: true, data: students || [] });
+    } catch (err) {
+      console.log(err);
+      return res.json({ success: false, msg: "Error" });
+    }
   }
-});
+);
 
 /* 
 ----------------------------Marks Api's---------------------------------
@@ -240,4 +246,31 @@ router.get("/marks", async (req, res) => {
   }
 });
 
+/* 
+----------------------------Subject Api's---------------------------------
+*/
+
+router.get("/myclasses", facultyAuth, async (req, res) => {
+  try {
+    const { email } = req.user;
+    const faculty = await Faculty.findOne({ email }).select("-password");
+    if (!faculty) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const { department } = faculty;
+    const subjects = await Subjects.find({ department });
+    let finalArr = [];
+    for (let i = 0; i < subjects.length; i++) {
+      const teacher = subjects[i].taughtBy;
+      if (String(teacher._id) === String(faculty._id)) {
+        finalArr = finalArr.concat(subjects[i]);
+      }
+    }
+
+    return res.json({ success: true, data: finalArr });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
+  }
+});
 module.exports = router;
