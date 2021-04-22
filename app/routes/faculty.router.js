@@ -6,6 +6,7 @@ const { facultyAuth } = require("../functions/jwt");
 const Student = require("../models/student.model");
 const LeaveApplication = require("./../models/leaveapplication.model");
 const Marks = require("./../models/marks.model");
+const Subjects = require("../models/subject.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
 
@@ -228,4 +229,31 @@ router.post("/marks", facultyAuth, async (req, res) => {
   }
 });
 
+/* 
+----------------------------Subject Api's---------------------------------
+*/
+
+router.get("/myclasses", facultyAuth, async (req, res) => {
+  try {
+    const { email } = req.user;
+    const faculty = await Faculty.findOne({ email }).select("-password");
+    if (!faculty) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const { department } = faculty;
+    const subjects = await Subjects.find({ department });
+    let finalArr = [];
+    for (let i = 0; i < subjects.length; i++) {
+      const teacher = subjects[i].taughtBy;
+      if (String(teacher._id) === String(faculty._id)) {
+        finalArr = finalArr.concat(subjects[i]);
+      }
+    }
+
+    return res.json({ success: true, data: finalArr });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
+  }
+});
 module.exports = router;
