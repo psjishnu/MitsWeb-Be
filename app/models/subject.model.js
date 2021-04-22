@@ -24,7 +24,8 @@ const subjectSchema = new mongoose.Schema({
     required: true,
   },
   taughtBy: {
-    type: Object,
+    type: ObjectId,
+    ref: "Faculty",
     required: true,
   },
 });
