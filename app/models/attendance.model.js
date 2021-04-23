@@ -9,17 +9,20 @@ const attendanceScheme = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  timestamp: { type: String, required: true },
-  /*
-startTime:String,
-endTime:String,
-subjectCode:cs100
-*/
-  period: {
-    type: any,
+  timeStamp: { type: String, required: true },
+  startTime: {
+    type: String,
     required: true,
   },
-  attendanceList: { type: any, required: true },
+  endTime: {
+    type: String,
+    required: true,
+  },
+  subjectCode: {
+    type: String,
+    required: true,
+  },
+  attendanceList: { type: Object, required: true },
 });
 
 module.exports = mongoose.model("Attendance", attendanceScheme);

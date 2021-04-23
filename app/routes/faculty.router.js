@@ -8,9 +8,13 @@ const LeaveApplication = require("./../models/leaveapplication.model");
 const Marks = require("./../models/marks.model");
 const Subjects = require("../models/subject.model");
 const Timetable = require("../models/timetable.model");
+const Attendance = require("../models/attendance.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
-
+const {
+  validategetStudentsinClass,
+  validateAddattendance,
+} = require("./validation/faculty.validation");
 //api to get the gatepass requests for a particular faculty
 router.get("/gatepass", facultyAuth, async (req, res) => {
   try {
@@ -183,61 +187,65 @@ router.get("/leaves/:_id/:action", facultyAuth, async (req, res) => {
   }
 });
 
-router.post("/getstudents", facultyAuth, async (req, res) => {
-  try {
-    const email = req.user.email;
-    const { semester, department, day, subjectCode } = req.body;
-    const dayList = [
-      "sunday",
-      "monday",
-      "tuesday",
-      "wednesday",
-      "thursday",
-      "friday",
-      "saturday",
-    ];
+router.post(
+  "/getstudents",
+  validategetStudentsinClass,
+  facultyAuth,
+  async (req, res) => {
+    try {
+      const email = req.user.email;
+      const { semester, department, day, subjectCode } = req.body;
+      const dayList = [
+        "sunday",
+        "monday",
+        "tuesday",
+        "wednesday",
+        "thursday",
+        "friday",
+        "saturday",
+      ];
 
-    if (!dayList.find((e) => e === day.toLowerCase())) {
-      return res.json({ success: false, msg: "Invalid day" });
-    }
-    const { periodTimings } = await Timetable.findOne({
-      semester,
-      department,
-    }).select("periodTimings");
-    let timingsArr = [];
-    for (let i = 0; i < periodTimings.length; i++) {
-      if (periodTimings[i].day === day) {
-        const { timings } = periodTimings[i];
-        for (let j = 0; j < timings.length; j++) {
-          if (timings[j].subject === subjectCode) {
-            timingsArr = timingsArr.concat(timings[j]);
+      if (!dayList.find((e) => e === day.toLowerCase())) {
+        return res.json({ success: false, msg: "Invalid day" });
+      }
+      const { periodTimings } = await Timetable.findOne({
+        semester,
+        department,
+      }).select("periodTimings");
+      let timingsArr = [];
+      for (let i = 0; i < periodTimings.length; i++) {
+        if (periodTimings[i].day === day) {
+          const { timings } = periodTimings[i];
+          for (let j = 0; j < timings.length; j++) {
+            if (timings[j].subject === subjectCode) {
+              timingsArr = timingsArr.concat(timings[j]);
+            }
           }
         }
       }
+      const currentYear =
+        semester === 1 || semester === 2
+          ? 1
+          : semester === 3 || semester === 4
+          ? 2
+          : semester === 5 || semester === 6
+          ? 3
+          : 4;
+      let students = [];
+      if (timingsArr.length > 0) {
+        students = await Student.find({ department, currentYear });
+      }
+      return res.json({
+        success: true,
+        data: students,
+        timings: timingsArr,
+      });
+    } catch (err) {
+      console.log(err);
+      return res.json({ success: false, msg: "Error" });
     }
-    console.log(timingsArr);
-    const currentYear =
-      semester === 1 || semester === 2
-        ? 1
-        : semester === 3 || semester === 4
-        ? 2
-        : semester === 5 || semester === 6
-        ? 3
-        : 4;
-    let students = [];
-    if (timingsArr.length > 0) {
-      students = await Student.find({ department, currentYear });
-    }
-    return res.json({
-      success: true,
-      data: students,
-      timings: timingsArr,
-    });
-  } catch (err) {
-    console.log(err);
-    return res.json({ success: false, msg: "Error" });
   }
-});
+);
 
 /* 
 ----------------------------Marks Api's---------------------------------
@@ -305,4 +313,57 @@ router.get("/myclasses", facultyAuth, async (req, res) => {
     return res.json({ success: false, msg: "Error" });
   }
 });
+
+/* 
+----------------------------Attendance Api's---------------------------------
+*/
+
+router.post(
+  "/attendance",
+  validateAddattendance,
+  facultyAuth,
+  async (req, res) => {
+    try {
+      const {
+        startTime,
+        endTime,
+        timeStamp,
+        department,
+        semester,
+        period,
+        attendanceList,
+      } = req.body;
+      const date = moment(timeStamp).format("MMM Do YY");
+
+      const attendance = await Attendance.findOne({
+        timeStamp: date,
+        subjectCode: period,
+        startTime,
+        endTime,
+        semester,
+        department,
+      });
+      if (attendance) {
+        return res.json({ success: false, msg: "Attendence already added!" });
+      }
+
+      const newAttendance = new Attendance({
+        timeStamp: date,
+        subjectCode: period,
+        startTime,
+        endTime,
+        semester,
+        department,
+        attendanceList,
+      });
+
+      await newAttendance.save();
+
+      return res.json({ success: true, msg: "Attendance added" });
+    } catch (err) {
+      console.log(err);
+      return res.json({ success: false, msg: "Error" });
+    }
+  }
+);
 module.exports = router;
