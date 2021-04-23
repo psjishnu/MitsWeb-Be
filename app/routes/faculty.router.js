@@ -7,6 +7,7 @@ const Student = require("../models/student.model");
 const LeaveApplication = require("./../models/leaveapplication.model");
 const Marks = require("./../models/marks.model");
 const Subjects = require("../models/subject.model");
+const Timetable = require("../models/timetable.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
 
@@ -182,30 +183,61 @@ router.get("/leaves/:_id/:action", facultyAuth, async (req, res) => {
   }
 });
 
-router.get(
-  "/students/:semester/:department/:day",
-  facultyAuth,
-  async (req, res) => {
-    try {
-      const email = req.user.email;
-      const { semester, department, day } = req.params;
-      console.log(day);
-      const currentYear =
-        semester === 1 || semester === 2
-          ? 1
-          : semester === 3 || semester === 4
-          ? 2
-          : semester === 5 || semester === 6
-          ? 3
-          : 4;
-      const students = await Student.find({ department, currentYear });
-      return res.json({ success: true, data: students || [] });
-    } catch (err) {
-      console.log(err);
-      return res.json({ success: false, msg: "Error" });
+router.post("/getstudents", facultyAuth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const { semester, department, day, subjectCode } = req.body;
+    const dayList = [
+      "sunday",
+      "monday",
+      "tuesday",
+      "wednesday",
+      "thursday",
+      "friday",
+      "saturday",
+    ];
+
+    if (!dayList.find((e) => e === day.toLowerCase())) {
+      return res.json({ success: false, msg: "Invalid day" });
     }
+    const { periodTimings } = await Timetable.findOne({
+      semester,
+      department,
+    }).select("periodTimings");
+    let timingsArr = [];
+    for (let i = 0; i < periodTimings.length; i++) {
+      if (periodTimings[i].day === day) {
+        const { timings } = periodTimings[i];
+        for (let j = 0; j < timings.length; j++) {
+          if (timings[j].subject === subjectCode) {
+            timingsArr = timingsArr.concat(timings[j]);
+          }
+        }
+      }
+    }
+    console.log(timingsArr);
+    const currentYear =
+      semester === 1 || semester === 2
+        ? 1
+        : semester === 3 || semester === 4
+        ? 2
+        : semester === 5 || semester === 6
+        ? 3
+        : 4;
+    let students = [];
+    if (timingsArr.length > 0) {
+      students = await Student.find({ department, currentYear });
+    }
+    return res.json({
+      success: true,
+      data: students,
+      timings: timingsArr,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
   }
-);
+});
 
 /* 
 ----------------------------Marks Api's---------------------------------
