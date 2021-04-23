@@ -7,6 +7,7 @@ const Student = require("../models/student.model");
 const Office = require("../models/office.model");
 const Security = require("../models/security.model");
 const Subject = require("../models/subject.model");
+const ExamType = require("../models/examtype.model");
 const Timetable = require("../models/timetable.model");
 const { adminAuth } = require("../functions/jwt");
 const {
@@ -23,6 +24,7 @@ const {
   validateSubjectCreation,
   validateSubjectEdit,
 } = require("./validation/subject.validation");
+const { validateExamTypeCreation } = require("./validation/exam.validation");
 const { isValidObjectId } = require("mongoose");
 
 //to delete a user
@@ -427,5 +429,31 @@ router.get("/timetable", adminAuth, async (req, res) => {
 
   return res.json({ success: true, data: timetables });
 });
+
+/* 
+----------------------------Exam Api's---------------------------------
+*/
+
+//to create exam type
+router.post(
+  "/examtype",
+  adminAuth,
+  validateExamTypeCreation,
+  async (req, res) => {
+    try {
+      const { type, maxMark, passMark } = req.body;
+      const examType = new ExamType({
+        type,
+        maxMark,
+        passMark,
+      });
+      await examType.save();
+      return res.json({ success: true, data: examType });
+    } catch (err) {
+      console.log(`Couldn't create exam type with error: ${err.message}`.red);
+      return res.json({ success: false, msg: err.message });
+    }
+  }
+);
 
 module.exports = router;
