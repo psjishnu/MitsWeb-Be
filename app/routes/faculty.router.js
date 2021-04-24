@@ -8,6 +8,7 @@ const LeaveApplication = require("./../models/leaveapplication.model");
 const Marks = require("./../models/marks.model");
 const Subjects = require("../models/subject.model");
 const Timetable = require("../models/timetable.model");
+const Exam = require("../models/exam.model");
 const Attendance = require("../models/attendance.model");
 const moment = require("moment");
 const { isValidObjectId } = require("mongoose");
@@ -15,6 +16,8 @@ const {
   validategetStudentsinClass,
   validateAddattendance,
 } = require("./validation/faculty.validation");
+const { validateExamCreation } = require("./validation/exam.validation");
+
 //api to get the gatepass requests for a particular faculty
 router.get("/gatepass", facultyAuth, async (req, res) => {
   try {
@@ -366,4 +369,52 @@ router.post(
     }
   }
 );
+
+/* 
+----------------------------Exam Api's---------------------------------
+*/
+
+//to create an exam
+router.post("/exam", validateExamCreation, facultyAuth, async (req, res) => {
+  try {
+    const {
+      examType,
+      subject,
+      date,
+      startTimestamp,
+      endTimestamp,
+      numberOfQuestions,
+    } = req.body;
+    const exam = new Exam({
+      examType,
+      subject,
+      date,
+      startTimestamp,
+      endTimestamp,
+      numberOfQuestions,
+    });
+
+    const result = await exam.save();
+    return res.json({ success: true, data: result });
+  } catch (err) {
+    console.log(`Failed to create exam with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+//to get list of exams
+router.get("/exam", async (req, res) => {
+  const query = [
+    {
+      path: "examType",
+    },
+    {
+      path: "subject",
+    },
+  ];
+
+  const result = await Exam.find().populate(query);
+  return res.json({ success: true, data: result });
+});
+
 module.exports = router;

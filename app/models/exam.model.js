@@ -20,7 +20,7 @@ const examSchema = new mongoose.Schema({
   },
 
   endTimestamp: {
-    type: string,
+    type: String,
     required: true,
   },
 
@@ -35,4 +35,4 @@ const examSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("Marks", marksSchema);
+module.exports = mongoose.model("Exam", examSchema);
