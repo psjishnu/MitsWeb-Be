@@ -479,7 +479,7 @@ router.put("/examtype", validateExamtypeEdit, adminAuth, async (req, res) => {
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid Id" });
     }
-    if (passMark > maxMark) {
+    if (Number(passMark) > Number(maxMark)) {
       return res.json({ success: false, msg: "Invalid marks" });
     }
     const examType = await ExamType.findOneAndUpdate(
