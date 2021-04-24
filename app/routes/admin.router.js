@@ -24,7 +24,10 @@ const {
   validateSubjectCreation,
   validateSubjectEdit,
 } = require("./validation/subject.validation");
-const { validateExamTypeCreation } = require("./validation/exam.validation");
+const {
+  validateExamTypeCreation,
+  validateExamtypeEdit,
+} = require("./validation/exam.validation");
 const { isValidObjectId } = require("mongoose");
 
 //to delete a user
@@ -433,15 +436,29 @@ router.get("/timetable", adminAuth, async (req, res) => {
 /* 
 ----------------------------Exam Api's---------------------------------
 */
+//get exam types
+
+router.get("/examtype", adminAuth, async (req, res) => {
+  try {
+    const exams = await ExamType.find({});
+    return res.json({ success: true, data: exams.reverse() });
+  } catch (err) {
+    console.log(`Couldn't create exam type with error: ${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
 
 //to create exam type
 router.post(
   "/examtype",
-  adminAuth,
   validateExamTypeCreation,
+  adminAuth,
   async (req, res) => {
     try {
       const { type, maxMark, passMark } = req.body;
+      if (passMark > maxMark) {
+        return res.json({ success: false, msg: "Invalid marks" });
+      }
       const examType = new ExamType({
         type,
         maxMark,
@@ -455,5 +472,49 @@ router.post(
     }
   }
 );
+
+router.put("/examtype", validateExamtypeEdit, adminAuth, async (req, res) => {
+  try {
+    const { _id, type, passMark, maxMark } = req.body;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    if (passMark > maxMark) {
+      return res.json({ success: false, msg: "Invalid marks" });
+    }
+    const examType = await ExamType.findOneAndUpdate(
+      { _id },
+      { type, passMark, maxMark },
+      { returnOriginal: false }
+    );
+    if (!examType) {
+      return res.json({
+        success: false,
+        msg: "Couldn't find the ExamType and update it.",
+      });
+    }
+    return res.json({ success: true, msg: "Examtype Updated" });
+  } catch (err) {
+    console.log(`Couldn't create exam type with error: ${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+router.delete("/examtype/:_id", adminAuth, async (req, res) => {
+  try {
+    const _id = req.params._id;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+
+    const result = await ExamType.deleteOne({ _id });
+    if (!result) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    return res.json({ success: true, msg: "Examtype Deleted" });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
 
 module.exports = router;
