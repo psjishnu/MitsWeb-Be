@@ -456,7 +456,7 @@ router.post(
   async (req, res) => {
     try {
       const { type, maxMark, passMark } = req.body;
-      if (passMark > maxMark) {
+      if (Number(passMark) > Number(maxMark)) {
         return res.json({ success: false, msg: "Invalid marks" });
       }
       const examType = new ExamType({
