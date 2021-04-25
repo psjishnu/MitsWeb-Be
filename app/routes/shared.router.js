@@ -1,6 +1,22 @@
 const express = require("express");
 const router = express.Router();
 const Subject = require("../models/subject.model");
+const ExamType = require("../models/examtype.model");
+
+/* 
+----------------------------Exam Api's---------------------------------
+*/
+
+//get exam types
+router.get("/examtype", async (req, res) => {
+  try {
+    const exams = await ExamType.find({});
+    return res.json({ success: true, data: exams.reverse() });
+  } catch (err) {
+    console.log(`Couldn't get exam type with error: ${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
 
 /* 
 ----------------------------Subject Api's---------------------------------

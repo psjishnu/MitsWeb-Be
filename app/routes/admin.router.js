@@ -436,8 +436,8 @@ router.get("/timetable", adminAuth, async (req, res) => {
 /* 
 ----------------------------Exam Api's---------------------------------
 */
-//get exam types
 
+//get exam types
 router.get("/examtype", adminAuth, async (req, res) => {
   try {
     const exams = await ExamType.find({});
