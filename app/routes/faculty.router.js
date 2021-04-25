@@ -414,7 +414,11 @@ router.get("/exam", async (req, res) => {
   ];
 
   const result = await Exam.find().populate(query);
-  return res.json({ success: true, data: result });
+  return res.json({ success: true, data: result || [] });
+});
+
+router.get("/exam/:_id", facultyAuth, async (req, res) => {
+  return res.json({ success: true, data: "ok" });
 });
 
 module.exports = router;
