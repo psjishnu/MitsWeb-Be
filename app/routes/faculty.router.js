@@ -417,8 +417,22 @@ router.get("/exam", async (req, res) => {
   return res.json({ success: true, data: result || [] });
 });
 
-router.get("/exam/:_id", facultyAuth, async (req, res) => {
-  return res.json({ success: true, data: "ok" });
+router.get("/exam/:examType", facultyAuth, async (req, res) => {
+  try {
+    const { examType } = req.params;
+    if (!isValidObjectId(examType)) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    const exams = await Exam.find({ examType }).populate([
+      {
+        path: "subject",
+      },
+    ]);
+    return res.json({ success: true, data: exams || [] });
+  } catch (err) {
+    console.log(`Failed to create exam with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 module.exports = router;
