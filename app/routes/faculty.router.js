@@ -16,7 +16,10 @@ const {
   validategetStudentsinClass,
   validateAddattendance,
 } = require("./validation/faculty.validation");
-const { validateExamCreation } = require("./validation/exam.validation");
+const {
+  validateExamCreation,
+  validateGetSubjectExams,
+} = require("./validation/exam.validation");
 
 //api to get the gatepass requests for a particular faculty
 router.get("/gatepass", facultyAuth, async (req, res) => {
@@ -417,6 +420,59 @@ router.get("/exam", async (req, res) => {
   return res.json({ success: true, data: result || [] });
 });
 
+//get list of exam details of subjects taught by faculty
+router.post(
+  "/exam/subjects/",
+  validateGetSubjectExams,
+  facultyAuth,
+  async (req, res) => {
+    try {
+      let { department, semester } = req.body;
+      const userEmail = req.user.email;
+      const query = [
+        {
+          path: "examType",
+        },
+        {
+          path: "subject",
+        },
+      ];
+      semester = Number(semester[1]);
+      department = department.toLowerCase();
+
+      Exam.find()
+        .populate(query)
+        .exec((err, data) => {
+          try {
+            const result = data.filter((val) => {
+              const filterData =
+                val.subject.semester === semester &&
+                val.subject.department &&
+                val.subject.department.toLowerCase() === department &&
+                val.subject.taughtBy.email === userEmail;
+              return filterData;
+            });
+            return res.json({ success: true, data: result || [] });
+          } catch (err) {
+            console.log(
+              `Failed to get subject exam details with error:${err.message}`.red
+            );
+            return res.json({
+              success: false,
+              msg: "Failed to get subject exams!!",
+            });
+          }
+        });
+    } catch (err) {
+      console.log(
+        `Failed to get subject exam details with error:${err.message}`.red
+      );
+      return res.json({ success: false, msg: err.message });
+    }
+  }
+);
+
+//to return exam based on types
 router.get("/exam/:examType", facultyAuth, async (req, res) => {
   try {
     const { examType } = req.params;
