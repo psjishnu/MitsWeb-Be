@@ -504,7 +504,6 @@ router.get("/exam/:_id/edit", facultyAuth, async (req, res) => {
       return res.json({ success: false, msg: "Invalid id" });
     }
     const { date, startTimestamp, endTimestamp, numberOfQuestions } = exam;
-    console.log(exam);
     return res.json({
       data: { _id, date, startTimestamp, endTimestamp, numberOfQuestions },
       success: true,
@@ -544,6 +543,23 @@ router.put("/exam", validateExamEdit, facultyAuth, async (req, res) => {
   } catch (err) {
     console.log(`Couldn't update exam  with error: ${err.message}`.red);
     return res.json({ success: false, msg: err.message });
+  }
+});
+
+router.delete("/exam/:_id", facultyAuth, async (req, res) => {
+  try {
+    const _id = req.params._id;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+
+    const result = await Exam.deleteOne({ _id });
+    if (!result) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    return res.json({ success: true, msg: "Exam Deleted" });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
   }
 });
 
