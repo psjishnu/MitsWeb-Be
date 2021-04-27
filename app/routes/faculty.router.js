@@ -16,7 +16,10 @@ const {
   validategetStudentsinClass,
   validateAddattendance,
 } = require("./validation/faculty.validation");
-const { validateExamCreation } = require("./validation/exam.validation");
+const {
+  validateExamCreation,
+  validateExamEdit,
+} = require("./validation/exam.validation");
 
 //api to get the gatepass requests for a particular faculty
 router.get("/gatepass", facultyAuth, async (req, res) => {
@@ -431,6 +434,61 @@ router.get("/exam/:examType", facultyAuth, async (req, res) => {
     return res.json({ success: true, data: exams || [] });
   } catch (err) {
     console.log(`Failed to create exam with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+router.get("/exam/:_id/edit", facultyAuth, async (req, res) => {
+  try {
+    const { _id } = req.params;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+
+    const exam = await Exam.findOne({ _id }).select("-examType");
+    if (!exam) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    const { date, startTimestamp, endTimestamp, numberOfQuestions } = exam;
+    console.log(exam);
+    return res.json({
+      data: { _id, date, startTimestamp, endTimestamp, numberOfQuestions },
+      success: true,
+    });
+  } catch (err) {
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+router.put("/exam", validateExamEdit, facultyAuth, async (req, res) => {
+  try {
+    const {
+      _id,
+      date,
+      startTimestamp,
+      endTimestamp,
+      numberOfQuestions,
+    } = req.body;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id" });
+    }
+    if (!(Number(numberOfQuestions) > 0)) {
+      return res.json({ success: false, msg: "Cant be 0" });
+    }
+    const exam = await Exam.findOneAndUpdate(
+      { _id },
+      { date, startTimestamp, endTimestamp, numberOfQuestions },
+      { returnOriginal: false }
+    );
+    if (!exam) {
+      return res.json({
+        success: false,
+        msg: "Couldn't find the Exam and update it.",
+      });
+    }
+    return res.json({ success: true, msg: "Exam Updated" });
+  } catch (err) {
+    console.log(`Couldn't update exam  with error: ${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }
 });

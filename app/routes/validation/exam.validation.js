@@ -22,8 +22,21 @@ const editExamTypeScheme = Joi.object({
   passMark: Joi.number().required(),
 });
 
+const editExamScheme = Joi.object({
+  _id: Joi.string().required(),
+  date: Joi.required(),
+  numberOfQuestions: Joi.number().required(),
+  startTimestamp: Joi.required(),
+  endTimestamp: Joi.required(),
+});
+
 const validateExamTypeCreation = (req, res, next) => {
   const { error } = createExamTypeScheme.validate(req.body);
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
+};
+
+const validateExamEdit = (req, res, next) => {
+  const { error } = editExamScheme.validate(req.body);
   error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 
@@ -41,4 +54,5 @@ module.exports = {
   validateExamTypeCreation,
   validateExamtypeEdit,
   validateExamCreation,
+  validateExamEdit,
 };
