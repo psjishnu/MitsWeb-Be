@@ -433,6 +433,7 @@ router.post(
     try {
       let { department, semester } = req.body;
       const userEmail = req.user.email;
+
       const query = [
         {
           path: "examType",
@@ -443,13 +444,13 @@ router.post(
       ];
       semester = Number(semester[1]);
       department = department.toLowerCase();
-
       Exam.find()
         .populate(query)
         .exec((err, data) => {
           try {
             const result = data.filter((val) => {
               const filterData =
+                val.subject &&
                 val.subject.semester === semester &&
                 val.subject.department &&
                 val.subject.department.toLowerCase() === department &&
