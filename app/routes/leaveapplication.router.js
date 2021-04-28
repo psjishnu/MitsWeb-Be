@@ -25,14 +25,29 @@ router.get("/", auth, async (req, res) => {
 router.post("/request", auth, validateCreation, async (req, res) => {
   try {
     const user = await Student.findOne({ email: req.user.email });
+    if (!user) {
+      return res.json({ msg: "Access denied", success: false });
+    }
     const department = user["department"];
-    const { description, fromTimestamp, toTimestamp } = req.body;
-    const leaveApplication = new LeaveApplication({
+    const {
       description,
+      fromDate,
+      toDate,
+      type,
+      fromTime,
+      toTime,
+      date,
+    } = req.body;
+    const leaveApplication = new LeaveApplication({
       department,
       requestBy: req.user.email,
-      fromTimestamp,
-      toTimestamp,
+      description,
+      fromDate,
+      toDate,
+      type,
+      fromTime,
+      toTime,
+      date,
     });
     await leaveApplication.save();
     return res.json({
@@ -75,20 +90,41 @@ router.post("/cancel", auth, validateDeletion, async (req, res) => {
 router.post("/edit", auth, validateEdit, async (req, res) => {
   try {
     const { email } = req.user;
-    const { description, _id, toTimestamp, fromTimestamp } = req.body;
+    const {
+      _id,
+      description,
+      fromDate,
+      toDate,
+      type,
+      fromTime,
+      toTime,
+      date,
+    } = req.body;
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid Id" });
     }
-    const result = await LeaveApplication.findOne({ _id, requestBy: email });
-    if (!result) {
+
+    const leave = await LeaveApplication.findOne({
+      _id,
+      requestBy: email,
+      status: 0,
+    });
+    if (!leave) {
       return res.json({ success: false, msg: "An error occurred" });
-    } else {
-      result.fromTimestamp = fromTimestamp;
-      result.toTimestamp = toTimestamp;
-      result.description = description;
-      await result.save();
-      return res.json({ success: true });
     }
+
+    const result = await LeaveApplication.findOneAndUpdate(
+      { _id },
+      { description, fromDate, toDate, type, fromTime, toTime, date },
+      { returnOriginal: false }
+    );
+    if (!result) {
+      return res.json({
+        success: false,
+        msg: "Couldn't find the Leave and update it.",
+      });
+    }
+    return res.json({ success: true, msg: "Leave request Updated" });
   } catch (err) {
     console.log(`{err.message}`.red);
     return res.json({ success: false, msg: err.message });

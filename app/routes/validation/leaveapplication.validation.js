@@ -6,14 +6,22 @@ let deleteSchema = Joi.object({
 
 let createSchema = Joi.object({
   description: Joi.string().required(),
-  fromTimestamp: Joi.string().required(),
-  toTimestamp: Joi.string().required(),
+  fromDate: Joi.any(),
+  toDate: Joi.any(),
+  type: Joi.string().required(),
+  fromTime: Joi.any(),
+  toTime: Joi.any(),
+  date: Joi.any(),
 });
 let editSchema = Joi.object({
-  fromTimestamp: Joi.string().required(),
-  toTimestamp: Joi.string().required(),
-  description: Joi.string().required(),
   _id: Joi.string().required(),
+  description: Joi.string().required(),
+  fromDate: Joi.any(),
+  toDate: Joi.any(),
+  type: Joi.string().required(),
+  fromTime: Joi.any(),
+  toTime: Joi.any(),
+  date: Joi.any(),
 });
 
 const validateDeletion = (req, res, next) => {
