@@ -133,11 +133,14 @@ router.get("/leaves", facultyAuth, async (req, res) => {
         const data = {
           name: student.name,
           email: student.email,
-          fromTimestamp: leaveApplications[i].fromTimestamp,
-          toTimestamp: leaveApplications[i].toTimestamp,
+          date: leaveApplications[i].date,
+          description: leaveApplications[i].description,
+          toDate: leaveApplications[i].toDate,
+          type: leaveApplications[i].type,
+          fromTime: leaveApplications[i].fromTime,
+          toTime: leaveApplications[i].toTime,
           currentYear: student.currentYear,
           department: student.department,
-          description: leaveApplications[i].description,
           _id: leaveApplications[i]._id,
         };
         finalArr = finalArr.concat(data);
