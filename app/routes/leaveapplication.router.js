@@ -29,20 +29,11 @@ router.post("/request", auth, validateCreation, async (req, res) => {
       return res.json({ msg: "Access denied", success: false });
     }
     const department = user["department"];
-    const {
-      description,
-      fromDate,
-      toDate,
-      type,
-      fromTime,
-      toTime,
-      date,
-    } = req.body;
+    const { description, toDate, type, fromTime, toTime, date } = req.body;
     const leaveApplication = new LeaveApplication({
       department,
       requestBy: req.user.email,
       description,
-      fromDate,
       toDate,
       type,
       fromTime,
@@ -90,16 +81,7 @@ router.post("/cancel", auth, validateDeletion, async (req, res) => {
 router.post("/edit", auth, validateEdit, async (req, res) => {
   try {
     const { email } = req.user;
-    const {
-      _id,
-      description,
-      fromDate,
-      toDate,
-      type,
-      fromTime,
-      toTime,
-      date,
-    } = req.body;
+    const { _id, description, toDate, type, fromTime, toTime, date } = req.body;
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid Id" });
     }
@@ -115,7 +97,7 @@ router.post("/edit", auth, validateEdit, async (req, res) => {
 
     const result = await LeaveApplication.findOneAndUpdate(
       { _id },
-      { description, fromDate, toDate, type, fromTime, toTime, date },
+      { description, toDate, type, fromTime, toTime, date },
       { returnOriginal: false }
     );
     if (!result) {

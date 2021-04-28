@@ -17,10 +17,6 @@ const leaveApplicationSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
-  fromDate: {
-    type: String,
-    required: false,
-  },
   toDate: {
     type: String,
     required: false,

@@ -6,7 +6,6 @@ let deleteSchema = Joi.object({
 
 let createSchema = Joi.object({
   description: Joi.string().required(),
-  fromDate: Joi.any(),
   toDate: Joi.any(),
   type: Joi.string().required(),
   fromTime: Joi.any(),
@@ -16,7 +15,6 @@ let createSchema = Joi.object({
 let editSchema = Joi.object({
   _id: Joi.string().required(),
   description: Joi.string().required(),
-  fromDate: Joi.any(),
   toDate: Joi.any(),
   type: Joi.string().required(),
   fromTime: Joi.any(),
