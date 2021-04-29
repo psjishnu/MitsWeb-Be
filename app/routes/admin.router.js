@@ -10,6 +10,7 @@ const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
 const Timetable = require("../models/timetable.model");
 const { adminAuth } = require("../functions/jwt");
+const { validateStudent } = require("./validation/addusers.validation");
 const {
   generateStudentId,
   generateFacultyId,
@@ -19,6 +20,7 @@ const {
   validateUpdation,
   validateDeletion,
   validateAddUser,
+  validateAddUsers,
 } = require("./validation/admin.validation");
 const {
   validateSubjectCreation,
@@ -344,6 +346,7 @@ router.post(
         courseType,
         taughtBy,
       } = req.body;
+
       const result = await Subject.findOne({ code, department, semester });
       if (result) {
         return res.json({ success: false, msg: "Subject exists" });
@@ -512,6 +515,63 @@ router.delete("/examtype/:_id", adminAuth, async (req, res) => {
       return res.json({ success: false, msg: "Invalid Id" });
     }
     return res.json({ success: true, msg: "Examtype Deleted" });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
+router.post("/addusers", validateAddUsers, adminAuth, async (req, res) => {
+  try {
+    var msg = {};
+    let ok = true;
+    const { data, type } = req.body;
+    if (type === "student") {
+      for (let i = 0; i < data.length; i++) {
+        if (validateStudent(data[i])) {
+          const {
+            email,
+            password,
+            department,
+            currentYear,
+            passoutYear,
+            rollNo,
+          } = data[i];
+          const user = await User.findOne({ email });
+          if (!user) {
+            let studentId = generateStudentId(rollNo, department, passoutYear);
+            const student = await Student.findOne({ studentId });
+            if (student) {
+              ok = false;
+              msg = { ...msg, [email]: ["invalid id"] };
+            } else {
+              const hashedPassword = await bcrypt.hash(password, 12);
+              const newStudent = new Student({
+                email,
+                password: hashedPassword,
+                department,
+                currentYear,
+                passoutYear,
+                studentId,
+              });
+              await newStudent.save();
+              const newUser = new User({ email, type });
+              await newUser.save();
+            }
+          } else {
+            ok = false;
+            msg = { ...msg, [email]: ["Invalid email"] };
+          }
+        } else {
+          ok = false;
+          msg = { ...msg, [data[i].email]: ["Error"] };
+        }
+      }
+    }
+    return res.json({
+      success: true,
+      msg: ok ? "Added users" : msg,
+      ok,
+    });
   } catch (err) {
     return res.json({ success: false, msg: "Error" });
   }
