@@ -264,15 +264,13 @@ router.post(
 //to add a student's subject marks
 router.post("/marks", facultyAuth, async (req, res) => {
   try {
-    const { studentId, teacherId, subjectId, examType, marks } = req.body;
+    const { exam, markList } = req.body;
     const subjectMark = new Marks({
-      studentId,
-      teacherId,
-      subjectId,
-      examType,
-      marks,
+      exam,
+      markList,
     });
-    await subjectMark.save();
+    console.log(subjectMark);
+    // await subjectMark.save();
     return res.json({
       success: true,
       msg: "Marks entered.",
@@ -380,6 +378,25 @@ router.post(
 /* 
 ----------------------------Exam Api's---------------------------------
 */
+
+//to get list of students for a class
+router.post("/findStudents", facultyAuth, async (req, res) => {
+  try {
+    let { department, semester } = req.body;
+    console.log(department, semester);
+    department = department.toUpperCase();
+    semester = semester / 2;
+    const students = await Student.find({
+      department: department,
+      currentYear: semester,
+    }).select("-password");
+
+    return res.json({ success: true, data: students });
+  } catch (err) {
+    console.log(`Failed to get students list with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
 
 //to create an exam
 router.post("/exam", validateExamCreation, facultyAuth, async (req, res) => {

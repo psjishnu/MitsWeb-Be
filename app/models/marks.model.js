@@ -1,28 +1,15 @@
 const mongoose = require("mongoose");
+const { ObjectId } = require("mongoose").Schema.Types;
 
 const marksSchema = new mongoose.Schema({
-  studentId: {
-    type: String,
+  exam: {
+    type: ObjectId,
+    ref: "Exam",
     required: true,
   },
 
-  subjectCode: {
-    type: String,
-    required: true,
-  },
-
-  teacherId: {
-    type: String,
-    required: true,
-  },
-
-  examType: {
-    type: String,
-    required: true,
-  },
-
-  marks: {
-    type: Number,
+  markList: {
+    type: Object,
     required: true,
   },
 });
