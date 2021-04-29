@@ -383,12 +383,20 @@ router.post(
 router.post("/findStudents", facultyAuth, async (req, res) => {
   try {
     let { department, semester } = req.body;
-    console.log(department, semester);
     department = department.toUpperCase();
-    semester = semester / 2;
+
+    const currentYear =
+      semester === 1 || semester === 2
+        ? 1
+        : semester === 3 || semester === 4
+        ? 2
+        : semester === 5 || semester === 6
+        ? 3
+        : 4;
+
     const students = await Student.find({
       department: department,
-      currentYear: semester,
+      currentYear,
     }).select("-password");
 
     return res.json({ success: true, data: students });
