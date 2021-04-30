@@ -599,6 +599,8 @@ router.post("/addusers", validateAddUsers, adminAuth, async (req, res) => {
                 facultyId,
               });
               await newFaculty.save();
+              const newUser = new User({ email, type });
+              await newUser.save();
             }
           } else {
             ok = false;
