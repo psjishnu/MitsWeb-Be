@@ -10,7 +10,10 @@ const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
 const Timetable = require("../models/timetable.model");
 const { adminAuth } = require("../functions/jwt");
-const { validateStudent } = require("./validation/addusers.validation");
+const {
+  validateStudent,
+  validateFaculty,
+} = require("./validation/addusers.validation");
 const {
   generateStudentId,
   generateFacultyId,
@@ -556,6 +559,46 @@ router.post("/addusers", validateAddUsers, adminAuth, async (req, res) => {
               await newStudent.save();
               const newUser = new User({ email, type });
               await newUser.save();
+            }
+          } else {
+            ok = false;
+            msg = { ...msg, [email]: ["Invalid email"] };
+          }
+        } else {
+          ok = false;
+          msg = { ...msg, [data[i].email]: ["Error"] };
+        }
+      }
+    } else if (type === "faculty") {
+      for (let i = 0; i < data.length; i++) {
+        if (validateFaculty(data[i])) {
+          const { email, password, department, joiningYear, internalId } = data[
+            i
+          ];
+          const user = await User.findOne({ email });
+          if (!user) {
+            let facultyId = generateFacultyId(joiningYear, internalId);
+            const faculty = await Faculty.findOne({ facultyId });
+            if (faculty) {
+              ok = false;
+              msg = { ...msg, [email]: ["invalid id"] };
+            } else {
+              const advInit = {
+                y1: "false",
+                y2: "false",
+                y3: "false",
+                y4: "false",
+              };
+              const hashedPassword = await bcrypt.hash(password, 12);
+
+              const newFaculty = new Faculty({
+                email,
+                password: hashedPassword,
+                department,
+                advisor: advInit,
+                facultyId,
+              });
+              await newFaculty.save();
             }
           } else {
             ok = false;
