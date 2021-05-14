@@ -2,6 +2,14 @@ const express = require("express");
 const router = express.Router();
 const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
+const Payment = require("../models/payment.model");
+const Razorpay = require("razorpay");
+const shortid = require("shortid");
+
+const razorpay = new Razorpay({
+  key_id: "rzp_test_6iKYRtRehIAgwt",
+  key_secret: "P0WT57lYBt3MpsyYBPrwrQci",
+});
 
 /* 
 ----------------------------Exam Api's---------------------------------
@@ -61,6 +69,57 @@ router.get("/subject/:department/:semester", async (req, res) => {
     }
   } catch (err) {
     console.log(`Failed to return subjects list with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+/* 
+----------------------------Payment Api's---------------------------------
+*/
+
+router.post("/verification", async (req, res) => {
+  try {
+    const secret = process.env.RAZORPAY_SECRET;
+    const crypto = require("crypto");
+    const shasum = crypto.createHmac("sha256", secret);
+
+    shasum.update(JSON.stringify(req.body));
+
+    const digest = shasum.digest("hex");
+
+    if (digest === req.headers["x-razorpay-signature"]) {
+      const payment = new Payment({
+        payment: req.body,
+      });
+
+      await payment.save();
+      return res.json({ success: true, status: "ok" });
+    } else {
+      return res.json({ success: false, status: "502" });
+    }
+  } catch (err) {
+    console.log(`Failed with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+router.post("/razorpay", async (req, res) => {
+  try {
+    const payment_capture = 1;
+    const amount = 500;
+    const options = {
+      amount: amount * 100,
+      currency: "INR",
+      receipt: shortid.generate(),
+      payment_capture,
+    };
+    const response = await razorpay.orders.create(options);
+    return res.json({
+      success: true,
+      data: response,
+    });
+  } catch (err) {
+    console.log(`Failed with error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }
 });

@@ -1,0 +1,58 @@
+{
+  "entity": "event",
+  "account_id": "acc_H8KPQeX1k8hN9m",
+  "event": "payment.captured",
+  "contains": ["payment"],
+  "payload": {
+    "payment": {
+      "entity": {
+        "id": "pay_HAgxiEZmszQuXy",
+        "entity": "payment",
+        "amount": 50000,
+        "currency": "INR",
+        "status": "captured",
+        "order_id": "order_HAgn2EHFKVuskN",
+        "invoice_id": null,
+        "international": false,
+        "method": "card",
+        "amount_refunded": 0,
+        "refund_status": null,
+        "captured": true,
+        "description": "Test Transaction",
+        "card_id": "card_HAgxiGly3DujtG",
+        "card": {
+          "id": "card_HAgxiGly3DujtG",
+          "entity": "card",
+          "name": "asd",
+          "last4": "1111",
+          "network": "Visa",
+          "type": "debit",
+          "issuer": null,
+          "international": false,
+          "emi": false,
+          "sub_type": "consumer"
+        },
+        "bank": null,
+        "wallet": null,
+        "vpa": null,
+        "email": "a@gmail.com",
+        "contact": "+917894561230",
+        "notes": {
+          "address": "Razorpay Corporate Office"
+        },
+        "fee": 1000,
+        "tax": 0,
+        "error_code": null,
+        "error_description": null,
+        "error_source": null,
+        "error_step": null,
+        "error_reason": null,
+        "acquirer_data": {
+          "auth_code": "104814"
+        },
+        "created_at": 1620999572
+      }
+    }
+  },
+  "created_at": 1620999574
+}
