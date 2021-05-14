@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
-const Timetable = require("../models/timetable.model");
-
 /* 
 ----------------------------Exam Api's---------------------------------
 */

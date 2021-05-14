@@ -41,6 +41,7 @@ const gatepassRouter = require("./app/routes/gatepass.router");
 const leaveapplicationRouter = require("./app/routes/leaveapplication.router");
 const securityRouter = require("./app/routes/security.router");
 const sharedRouter = require("./app/routes/shared.router");
+const studentRouter = require("./app/routes/student.router");
 const userRouter = require("./app/routes/user.router");
 
 app.use("/api", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -54,6 +55,7 @@ app.use("/gatepass", gatepassRouter);
 app.use("/leaveapplication", leaveapplicationRouter);
 app.use("/security", securityRouter);
 app.use("/shared", sharedRouter);
+app.use("/student", studentRouter);
 app.use("/user", userRouter);
 
 //server listening on port
