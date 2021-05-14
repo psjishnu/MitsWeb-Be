@@ -218,10 +218,15 @@ router.post(
       if (!dayList.find((e) => e === day.toLowerCase())) {
         return res.json({ success: false, msg: "Invalid day" });
       }
-      const { periodTimings } = await Timetable.findOne({
+
+      const table = await Timetable.findOne({
         semester,
         department,
       }).select("periodTimings");
+      if (!table) {
+        return res.json({ success: false, msg: "Timetable not found" });
+      }
+      const { periodTimings } = table;
       let timingsArr = [];
       for (let i = 0; i < periodTimings.length; i++) {
         if (periodTimings[i].day === day) {
