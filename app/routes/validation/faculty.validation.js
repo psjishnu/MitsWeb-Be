@@ -16,6 +16,15 @@ const addAttendanceScheme = Joi.object({
   period: Joi.string().required(),
   attendanceList: Joi.any().required(),
 });
+let getTimetableScheme = Joi.object({
+  department: Joi.string().required(),
+  semester: Joi.number().required(),
+});
+
+const validateGetTimetable = (req, res, next) => {
+  const { error } = getTimetableScheme.validate(req.body);
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
+};
 const validategetStudentsinClass = (req, res, next) => {
   const { error, value } = getStudentsinClassScheme.validate(req.body);
   error ? res.json({ msg: error.details[0].message, success: false }) : next();
@@ -29,4 +38,5 @@ const validateAddattendance = (req, res, next) => {
 module.exports = {
   validategetStudentsinClass,
   validateAddattendance,
+  validateGetTimetable,
 };

@@ -15,6 +15,7 @@ const { isValidObjectId } = require("mongoose");
 const {
   validategetStudentsinClass,
   validateAddattendance,
+  validateGetTimetable,
 } = require("./validation/faculty.validation");
 const {
   validateExamCreation,
@@ -274,7 +275,6 @@ router.post("/marks", facultyAuth, async (req, res) => {
       exam,
       markList,
     });
-    console.log(subjectMark);
     // await subjectMark.save();
     return res.json({
       success: true,
@@ -597,4 +597,51 @@ router.delete("/exam/:_id", facultyAuth, async (req, res) => {
   }
 });
 
+router.post(
+  "/timetable",
+  validateGetTimetable,
+  facultyAuth,
+  async (req, res) => {
+    try {
+      let { semester, department } = req.body;
+      department = department.toUpperCase();
+      const timetable = await Timetable.findOne({
+        semester,
+        department,
+      }).select("periodTimings");
+      if (!timetable) {
+        return res.json({ success: false, msg: "Timetable not found" });
+      }
+
+      const { email } = req.user;
+      const faculty = await Faculty.findOne({ email }).select("-password");
+      if (!faculty) {
+        return res.json({ success: false, msg: "Error" });
+      }
+      const Department = faculty.department;
+      const subjects = await Subjects.find({
+        department: Department,
+        semester,
+      });
+      let finalArr = [];
+      for (let i = 0; i < subjects.length; i++) {
+        const teacher = subjects[i].taughtBy;
+        if (String(teacher._id) === String(faculty._id)) {
+          finalArr = finalArr.concat(subjects[i].code);
+        }
+      }
+
+      return res.json({
+        success: true,
+        data: timetable.periodTimings || [],
+        subjects: finalArr || [],
+      });
+    } catch (err) {
+      console.log(
+        `Failed to return timetable list with error:${err.message}`.red
+      );
+      return res.json({ success: false, msg: err.message });
+    }
+  }
+);
 module.exports = router;

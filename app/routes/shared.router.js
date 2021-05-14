@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
-const { validateGetTimetable } = require("./validation/shared.validation");
 const Timetable = require("../models/timetable.model");
 
 /* 
@@ -63,25 +62,6 @@ router.get("/subject/:department/:semester", async (req, res) => {
     }
   } catch (err) {
     console.log(`Failed to return subjects list with error:${err.message}`.red);
-    return res.json({ success: false, msg: err.message });
-  }
-});
-
-router.post("/timetable", validateGetTimetable, async (req, res) => {
-  try {
-    let { semester, department } = req.body;
-    department = department.toUpperCase();
-    const timetable = await Timetable.findOne({ semester, department }).select(
-      "periodTimings"
-    );
-    if (!timetable) {
-      return res.json({ success: false, msg: "Timetable not found" });
-    }
-    return res.json({ success: true, data: timetable.periodTimings || [] });
-  } catch (err) {
-    console.log(
-      `Failed to return timetable list with error:${err.message}`.red
-    );
     return res.json({ success: false, msg: err.message });
   }
 });
