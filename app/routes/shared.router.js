@@ -5,6 +5,11 @@ const ExamType = require("../models/examtype.model");
 const Timetable = require("../models/timetable.model");
 const { isValidObjectId } = require("mongoose");
 
+const razorpay = new Razorpay({
+  key_id: "rzp_test_6iKYRtRehIAgwt",
+  key_secret: "P0WT57lYBt3MpsyYBPrwrQci",
+});
+
 /* 
 ----------------------------Exam Api's---------------------------------
 */
