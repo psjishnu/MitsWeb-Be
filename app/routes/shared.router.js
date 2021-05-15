@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
+const Timetable = require("../models/timetable.model");
+const { isValidObjectId } = require("mongoose");
+
 /* 
 ----------------------------Exam Api's---------------------------------
 */
@@ -60,6 +63,26 @@ router.get("/subject/:department/:semester", async (req, res) => {
     }
   } catch (err) {
     console.log(`Failed to return subjects list with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+router.get("/timetable/:_id", async (req, res) => {
+  try {
+    const { _id } = req.params;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid id..!" });
+    }
+    const timeTable = await Timetable.findOne({ _id });
+    if (!timeTable) {
+      return res.json({ success: false, msg: "Invalid id..!" });
+    }
+    return res.json({
+      data: timeTable,
+      success: true,
+    });
+  } catch (err) {
+    console.log(`Failed to return timetable with error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }
 });
