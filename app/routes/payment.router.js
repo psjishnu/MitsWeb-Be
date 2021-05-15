@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const { adminAuth } = require("../functions/jwt");
+const { auth } = require("../functions/jwt");
 const PayType = require("../models/paytypes.model");
 const { validatePayTypeCreation } = require("./validation/payment.validation");
 
@@ -28,4 +29,14 @@ router.post("/type", validatePayTypeCreation, adminAuth, async (req, res) => {
   }
 });
 
+//to get all payment types
+router.get("/types", auth, async (req, res) => {
+  try {
+    const types = await PayType.find();
+    return res.json({ success: true, data: types });
+  } catch (err) {
+    console.log(`Couldn't get pay types with error: ${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
 module.exports = router;
