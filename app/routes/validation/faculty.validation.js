@@ -21,12 +21,22 @@ let getTimetableScheme = Joi.object({
   semester: Joi.number().required(),
 });
 
+let getAttendanceScheme = Joi.object({
+  department: Joi.string().required(),
+  semester: Joi.number().required(),
+  subjectCode: Joi.string().required(),
+});
 const validateGetTimetable = (req, res, next) => {
   const { error } = getTimetableScheme.validate(req.body);
   error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 const validategetStudentsinClass = (req, res, next) => {
   const { error, value } = getStudentsinClassScheme.validate(req.body);
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
+};
+
+const validateGetAttendance = (req, res, next) => {
+  const { error, value } = getAttendanceScheme.validate(req.body);
   error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 
@@ -39,4 +49,5 @@ module.exports = {
   validategetStudentsinClass,
   validateAddattendance,
   validateGetTimetable,
+  validateGetAttendance,
 };
