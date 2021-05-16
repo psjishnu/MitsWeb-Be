@@ -380,6 +380,21 @@ router.post(
   }
 );
 
+router.post("/getattendance", facultyAuth, async (req, res) => {
+  try {
+    const { semester, department, subjectCode } = req.body;
+    const attendance = await Attendance.find({
+      semester,
+      department,
+      subjectCode,
+    });
+    return res.json({ success: true, data: attendance || [] });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
 /* 
 ----------------------------Exam Api's---------------------------------
 */
