@@ -1,7 +1,6 @@
 const express = require("express");
-const { object } = require("joi");
 const router = express.Router();
-const { adminAuth } = require("./../functions/jwt");
+const { adminAuth, auth } = require("./../functions/jwt");
 const FeedbackCategory = require("./../models/feedbackcategory.model");
 const { isValidObjectId } = require("mongoose");
 const {
@@ -9,6 +8,7 @@ const {
   validateupdateFeedbackType,
 } = require("./validation/feedback.validation");
 const FeedbackQuestions = require("./../models/feedbackquestions.model");
+const Feedback = require("./../models/feedback.model");
 
 /* 
 ----------------------------Create Feedback Category Api's---------------------------------
@@ -80,6 +80,7 @@ router.put(
     }
   }
 );
+
 /* 
 ----------------------------Create Feedback Category Questions Api's---------------------------------
 */
@@ -121,6 +122,31 @@ router.get("/questions", async (req, res) => {
     console.log(
       `Couldn't get feedback category questions with error: ${err.message}`.red
     );
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+/* 
+----------------------------Store answer for feedback api's---------------------------------
+*/
+
+//to get the answer and store
+router.post("/", auth, async (req, res) => {
+  try {
+    const { questionSet, faculty, feedback } = req.body;
+    const user = req.user.email;
+
+    feedback_received = new Feedback({
+      questionSet,
+      faculty,
+      feedback,
+      user,
+    });
+
+    await feedback_received.save();
+    res.json({ success: true, data: feedback_received });
+  } catch (err) {
+    console.log(`Couldn't save feedback with error: ${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }
 });
