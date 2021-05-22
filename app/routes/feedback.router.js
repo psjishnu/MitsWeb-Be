@@ -95,7 +95,7 @@ router.put(
 }
     No need to send uuid , just send in the above format
 */
-router.post("/questions", async (req, res) => {
+router.post("/questions", adminAuth, async (req, res) => {
   try {
     const { category, questions } = req.body;
     const feedbackQuestions = new FeedbackQuestions({
@@ -113,10 +113,9 @@ router.post("/questions", async (req, res) => {
 });
 
 //to get all the feedback category questions
-router.get("/questions", async (req, res) => {
+router.get("/questions", auth, async (req, res) => {
   try {
     const questions = await FeedbackQuestions.find();
-    console.log(questions);
     res.json({ success: true, data: questions });
   } catch (err) {
     console.log(
