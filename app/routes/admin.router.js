@@ -9,6 +9,7 @@ const Security = require("../models/security.model");
 const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
 const Timetable = require("../models/timetable.model");
+const Stats = require("../models/stats.model");
 const { adminAuth } = require("../functions/jwt");
 const {
   validateStudent,
@@ -617,6 +618,32 @@ router.post("/addusers", validateAddUsers, adminAuth, async (req, res) => {
       msg: ok ? "Added users" : msg,
       ok,
     });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
+//stats
+router.get("/stats/:type/:value", adminAuth, async (req, res) => {
+  try {
+    const { type, value } = req.params;
+    if (
+      !(type === "feedback" || type === "payment") ||
+      !(Number(value) === 0 || Number(value) === 1)
+    ) {
+      return res.json({ success: false, msg: "Invalid params" });
+    }
+    const stats = await Stats.findOne({});
+    if (!stats) {
+      const newStat = new Stats({ [type]: Boolean(Number(value)) });
+      await newStat.save();
+    } else {
+      type === "feedback"
+        ? (stats.feedback = Boolean(Number(value)))
+        : (stats.payment = Boolean(Number(value)));
+      await stats.save();
+    }
+    return res.json({ success: true, msg: "Updated" });
   } catch (err) {
     return res.json({ success: false, msg: "Error" });
   }
