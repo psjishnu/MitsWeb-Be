@@ -11,7 +11,7 @@ const auth = (req, res, next) => {
     req.user = verified;
     next();
   } catch (err) {
-    res.status(400).send("invalid token");
+    res.status(400).json({ msg: "Invalid token", success: false });
   }
 };
 const adminAuth = async (req, res, next) => {
@@ -26,10 +26,10 @@ const adminAuth = async (req, res, next) => {
     if (currentUser && currentUser.type === "admin") {
       next();
     } else {
-      res.status(400).send("invalid token");
+      res.status(400).json({ msg: "Invalid token", success: false });
     }
   } catch (err) {
-    res.status(400).send("invalid token");
+    res.status(400).json({ msg: "Invalid token", success: false });
   }
 };
 
@@ -45,10 +45,10 @@ const facultyAuth = async (req, res, next) => {
     if (currentUser && currentUser.type === "faculty") {
       next();
     } else {
-      res.status(400).send("invalid token");
+      res.status(400).json({ msg: "Invalid token", success: false });
     }
   } catch (err) {
-    res.status(400).send("invalid token");
+    res.status(400).json({ msg: "Invalid token", success: false });
   }
 };
 const securityAuth = async (req, res, next) => {
@@ -63,10 +63,10 @@ const securityAuth = async (req, res, next) => {
     if (currentUser && currentUser.type === "security") {
       next();
     } else {
-      res.status(400).send("invalid token");
+      res.status(400).json({ msg: "Invalid token", success: false });
     }
   } catch (err) {
-    res.status(400).send("invalid token");
+    res.status(400).json({ msg: "Invalid token", success: false });
   }
 };
 
@@ -82,10 +82,10 @@ const studentAuth = async (req, res, next) => {
     if (currentUser && currentUser.type === "student") {
       next();
     } else {
-      res.status(400).send("invalid token");
+      res.status(400).json({ msg: "Invalid token", success: false });
     }
   } catch (err) {
-    res.status(400).send("invalid token");
+    res.status(400).json({ msg: "Invalid token", success: false });
   }
 };
 

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { adminAuth, auth } = require("./../functions/jwt");
+const { adminAuth, studentAuth } = require("./../functions/jwt");
 const FeedbackCategory = require("./../models/feedbackcategory.model");
 const { isValidObjectId } = require("mongoose");
 const Stats = require("../models/stats.model");
@@ -48,6 +48,26 @@ router.get("/category", adminAuth, async (req, res) => {
       status = stats.feedback;
     }
     res.json({ success: true, data: categories, status });
+  } catch (err) {
+    console.log(
+      `Couldn't get feedback categories with error: ${err.message}`.red
+    );
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+router.get("/category/student", studentAuth, async (req, res) => {
+  try {
+    const categories = await FeedbackCategory.find();
+    const stats = await Stats.findOne({});
+    let status = false;
+    if (stats) {
+      status = stats.feedback;
+    }
+    if (!status) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    return res.json({ success: true, data: categories });
   } catch (err) {
     console.log(
       `Couldn't get feedback categories with error: ${err.message}`.red
@@ -119,9 +139,20 @@ router.post("/questions", adminAuth, async (req, res) => {
 });
 
 //to get all the feedback category questions
-router.get("/questions", auth, async (req, res) => {
+router.get("/questions/:_id", studentAuth, async (req, res) => {
   try {
-    const questions = await FeedbackQuestions.find();
+    const { _id } = req.params;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const questions = await FeedbackQuestions.find({
+      category: _id,
+    }).populate({
+      path: "category",
+    });
+    if (!questions) {
+      return res.json({ success: false, msg: "Error" });
+    }
     res.json({ success: true, data: questions });
   } catch (err) {
     console.log(
@@ -136,7 +167,7 @@ router.get("/questions", auth, async (req, res) => {
 */
 
 //to get the answer and store
-router.post("/", auth, async (req, res) => {
+router.post("/", studentAuth, async (req, res) => {
   try {
     const { questionSet, faculty, feedback } = req.body;
     const user = req.user.email;
