@@ -5,12 +5,22 @@ const { auth } = require("../functions/jwt");
 const User = require("../models/user.model");
 const Faculty = require("../models/faculty.model");
 const { validateUpdate } = require("./validation/user.validation");
+const Stats = require("../models/stats.model");
 
 //api to get the current user
 router.get("/getUser", auth, async (req, res) => {
   const currentUser = await User.findOne({ email: req.user.email });
+  let stats = { feedback: false, payment: false };
+  if (currentUser.type === "student") {
+    const Stat = await Stats.findOne({});
+    if (Stat) {
+      const { feedback, payment } = Stat;
+      stats.feedback = feedback;
+      stats.payment = payment;
+    }
+  }
   console.log(`User retrieved`, `${currentUser.email}`.blue.bold);
-  res.json({ data: currentUser, success: true });
+  res.json({ data: currentUser, success: true, stats });
 });
 
 //api to get the logged in faculty
