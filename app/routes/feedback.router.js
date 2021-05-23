@@ -3,6 +3,7 @@ const router = express.Router();
 const { adminAuth, auth } = require("./../functions/jwt");
 const FeedbackCategory = require("./../models/feedbackcategory.model");
 const { isValidObjectId } = require("mongoose");
+const Stats = require("../models/stats.model");
 const {
   validateaddFeedbackType,
   validateupdateFeedbackType,
@@ -41,7 +42,12 @@ router.post(
 router.get("/category", adminAuth, async (req, res) => {
   try {
     const categories = await FeedbackCategory.find();
-    res.json({ success: true, data: categories });
+    const stats = await Stats.findOne({});
+    let status = false;
+    if (stats) {
+      status = stats.feedback;
+    }
+    res.json({ success: true, data: categories, status });
   } catch (err) {
     console.log(
       `Couldn't get feedback categories with error: ${err.message}`.red
