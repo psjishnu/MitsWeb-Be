@@ -55,54 +55,70 @@ router.get("/gatepass", facultyAuth, async (req, res) => {
 
 //to either update or reject a gatepass by faculty
 router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
-  let { email } = req.user;
-  const _id = req.params._id;
-  const action = Number(req.params.action);
-  if (!(action === 1 || action === -1) || !isValidObjectId(_id)) {
-    return res.json({ success: false, msg: "Invalid Id or Action" });
-  }
+  try {
+    let { email } = req.user;
+    const _id = req.params._id;
+    const action = Number(req.params.action);
+    if (!(action === 1 || action === -1) || !isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid Id or Action" });
+    }
 
-  const hod = await Faculty.findOne({ email, isHOD: true });
-  if (!hod) {
-    return res.json({ success: false, msg: "Error" });
-  }
-  const gatepass = await GatePass.findOne({ _id, department: hod.department });
-  if (!gatepass) {
-    return res.json({ success: false, msg: "Error" });
-  }
+    const hod = await Faculty.findOne({ email, isHOD: true });
+    if (!hod) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const gatepass = await GatePass.findOne({
+      _id,
+      department: hod.department,
+    });
+    if (!gatepass) {
+      return res.json({ success: false, msg: "Error" });
+    }
 
-  gatepass.status = action;
-  await gatepass.save();
-  const msg = action === 1 ? "Gatepass approved" : "Gatepass rejected";
-  return res.json({ msg, success: true });
+    gatepass.status = action;
+    await gatepass.save();
+    const msg = action === 1 ? "Gatepass approved" : "Gatepass rejected";
+    return res.json({ msg, success: true });
+  } catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //get the gatepass by id
 router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
-  let { email } = req.user;
-  const _id = req.params._id;
-  if (!isValidObjectId(_id)) {
-    return res.json({ success: false, msg: "Invalid id" });
+  try {
+    let { email } = req.user;
+    const _id = req.params._id;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    const hod = await Faculty.findOne({ email, isHOD: true });
+    if (!hod) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const gatepass = await GatePass.findOne({
+      _id,
+      department: hod.department,
+    });
+    if (!gatepass) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const student = await Student.findOne({ email: gatepass.requestBy });
+    const data = {
+      name: student.name,
+      email: student.email,
+      photo: student.photo,
+      time: gatepass.time,
+      description: gatepass.description,
+      _id: gatepass._id,
+      status: gatepass.status,
+    };
+    return res.json({ success: true, data });
+  } catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
   }
-  const hod = await Faculty.findOne({ email, isHOD: true });
-  if (!hod) {
-    return res.json({ success: false, msg: "Error" });
-  }
-  const gatepass = await GatePass.findOne({ _id, department: hod.department });
-  if (!gatepass) {
-    return res.json({ success: false, msg: "Error" });
-  }
-  const student = await Student.findOne({ email: gatepass.requestBy });
-  const data = {
-    name: student.name,
-    email: student.email,
-    photo: student.photo,
-    time: gatepass.time,
-    description: gatepass.description,
-    _id: gatepass._id,
-    status: gatepass.status,
-  };
-  return res.json({ success: true, data });
 });
 
 //get all leaves

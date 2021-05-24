@@ -9,39 +9,35 @@ const Stats = require("../models/stats.model");
 
 //api to get the current user
 router.get("/getUser", auth, async (req, res) => {
-  const currentUser = await User.findOne({ email: req.user.email });
-  let stats = { feedback: false, payment: false };
-  if (currentUser.type === "student") {
-    const Stat = await Stats.findOne({});
-    if (Stat) {
-      const { feedback, payment } = Stat;
-      stats.feedback = feedback;
-      stats.payment = payment;
+  try {
+    const currentUser = await User.findOne({ email: req.user.email });
+    let stats = { feedback: false, payment: false };
+    if (currentUser.type === "student") {
+      const Stat = await Stats.findOne({});
+      if (Stat) {
+        const { feedback, payment } = Stat;
+        stats.feedback = feedback;
+        stats.payment = payment;
+      }
     }
+    console.log(`User retrieved`, `${currentUser.email}`.blue.bold);
+    res.json({ data: currentUser, success: true, stats });
+  } catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
   }
-  console.log(`User retrieved`, `${currentUser.email}`.blue.bold);
-  res.json({ data: currentUser, success: true, stats });
 });
 
 //api to get the logged in faculty
 router.get("/faculty", auth, async (req, res) => {
-  const currentFaculty = await Faculty.findOne({ email: req.user.email });
-  if (!currentFaculty) {
-    return res.json({ success: false, msg: "invalid email" });
-  }
-  console.log(`Faculty retrieved`, `${currentFaculty.email}`.blue.bold);
-  delete currentFaculty.password;
-  const {
-    active,
-    registered,
-    isHOD,
-    department,
-    email,
-    mobile,
-    name,
-  } = currentFaculty;
-  res.json({
-    data: {
+  try {
+    const currentFaculty = await Faculty.findOne({ email: req.user.email });
+    if (!currentFaculty) {
+      return res.json({ success: false, msg: "invalid email" });
+    }
+    console.log(`Faculty retrieved`, `${currentFaculty.email}`.blue.bold);
+    delete currentFaculty.password;
+    const {
       active,
       registered,
       isHOD,
@@ -49,9 +45,23 @@ router.get("/faculty", auth, async (req, res) => {
       email,
       mobile,
       name,
-    },
-    success: true,
-  });
+    } = currentFaculty;
+    res.json({
+      data: {
+        active,
+        registered,
+        isHOD,
+        department,
+        email,
+        mobile,
+        name,
+      },
+      success: true,
+    });
+  } catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //api used for updating user
