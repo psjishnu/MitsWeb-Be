@@ -13,14 +13,14 @@ const { isValidObjectId } = require("mongoose");
 
 //get leave application submissions made by the user.
 router.get("/", auth, async (req, res) => {
-  try{
+  try {
     const email = req.user.email;
-  const requests = await LeaveApplication.find({
-    requestBy: email,
-    $or: [{ status: 0 }, { status: 1 }],
-  });
-  res.json({ data: requests.reverse(), success: true });}
-  catch (err) {
+    const requests = await LeaveApplication.find({
+      requestBy: email,
+      $or: [{ status: 0 }, { status: 1 }],
+    });
+    res.json({ data: requests.reverse(), success: true });
+  } catch (err) {
     console.log(`error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }

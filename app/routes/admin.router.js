@@ -65,8 +65,7 @@ router.post("/deleteuser", validateDeletion, adminAuth, async (req, res) => {
 
 //to update the user
 router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
-  try{
-    let idUser = await User.findOne({ email: req.body.email });
+  let idUser = await User.findOne({ email: req.body.email });
   if (!idUser) {
     res.json({ success: false, msg: "invalid id" });
   } else {
@@ -113,9 +112,6 @@ router.post("/updateuser", validateUpdation, adminAuth, async (req, res) => {
     idUser.mobile = req.body.mobile;
     await idUser.save();
     res.json({ success: true, msg: "User updated" });
-  }}catch (err) {
-    console.log(`error:${err.message}`.red);
-    return res.json({ success: false, msg: err.message });
   }
 });
 
@@ -272,8 +268,7 @@ router.get("/alladmins", adminAuth, async (req, res) => {
 
 //to get list of all students
 router.get("/allstudents", adminAuth, async (req, res) => {
-  try{
-    let retArr = [];
+  let retArr = [];
   await Student.find({}, async (err, resp) => {
     for (let i = 0; i < resp.length; i++) {
       const {
@@ -316,10 +311,7 @@ router.get("/allstudents", adminAuth, async (req, res) => {
       };
     }
     res.json({ success: true, data: retArr });
-  });}catch (err) {
-    console.log(`error:${err.message}`.red);
-    return res.json({ success: false, msg: err.message });
-  }
+  });
 });
 
 /* 

@@ -13,23 +13,23 @@ const { isValidObjectId } = require("mongoose");
 
 //get gate pass requests made by the user.
 router.get("/", auth, async (req, res) => {
-  try{
+  try {
     const email = req.user.email;
-  const requests = await GatePass.find({
-    requestBy: email,
-    $or: [{ status: 0 }, { status: 1 }],
-  });
-  var passes = [];
-  requests.filter((pass) => {
-    if (
-      new Date(pass.time).toISOString() > new Date().toISOString() ||
-      moment().format("MMM Do YY") === moment(pass.time).format("MMM Do YY")
-    ) {
-      passes = passes.concat(pass);
-    }
-  });
-  res.json({ data: passes.reverse(), success: true });}
-  catch (err) {
+    const requests = await GatePass.find({
+      requestBy: email,
+      $or: [{ status: 0 }, { status: 1 }],
+    });
+    var passes = [];
+    requests.filter((pass) => {
+      if (
+        new Date(pass.time).toISOString() > new Date().toISOString() ||
+        moment().format("MMM Do YY") === moment(pass.time).format("MMM Do YY")
+      ) {
+        passes = passes.concat(pass);
+      }
+    });
+    res.json({ data: passes.reverse(), success: true });
+  } catch (err) {
     console.log(`error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
   }
