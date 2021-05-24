@@ -115,15 +115,6 @@ router.put(
 */
 
 //to create the questions
-
-/*
-    The data send in body should be in this format
-{
-    "category":"60a768f3672aca30148f9846",
-    "questions": [ { "question": "how are you?"}, { "question": "how are you dear"} ]
-}
-    No need to send uuid , just send in the above format
-*/
 router.post(
   "/questions",
   validatequestionFeedbackType,
