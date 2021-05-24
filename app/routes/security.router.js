@@ -9,7 +9,8 @@ const { isValidObjectId } = require("mongoose");
 
 //to verify the gatepass issued to the user
 router.post("/verify", validateGatepass, securityAuth, async (req, res) => {
-  const _id = req.body.gatepassId;
+  try{
+    const _id = req.body.gatepassId;
   if (!isValidObjectId(_id)) {
     return res.json({ success: false, msg: "Invalid Gatepass" });
   }
@@ -44,7 +45,11 @@ router.post("/verify", validateGatepass, securityAuth, async (req, res) => {
     department,
     time,
   };
-  return res.json({ success: true, msg: "Valid Gatepass", data });
+  return res.json({ success: true, msg: "Valid Gatepass", data });}
+  catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 module.exports = router;

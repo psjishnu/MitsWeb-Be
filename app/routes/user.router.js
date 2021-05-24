@@ -9,7 +9,8 @@ const Stats = require("../models/stats.model");
 
 //api to get the current user
 router.get("/getUser", auth, async (req, res) => {
-  const currentUser = await User.findOne({ email: req.user.email });
+  try{
+    const currentUser = await User.findOne({ email: req.user.email });
   let stats = { feedback: false, payment: false };
   if (currentUser.type === "student") {
     const Stat = await Stats.findOne({});
@@ -20,12 +21,17 @@ router.get("/getUser", auth, async (req, res) => {
     }
   }
   console.log(`User retrieved`, `${currentUser.email}`.blue.bold);
-  res.json({ data: currentUser, success: true, stats });
+  res.json({ data: currentUser, success: true, stats });}
+  catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //api to get the logged in faculty
 router.get("/faculty", auth, async (req, res) => {
-  const currentFaculty = await Faculty.findOne({ email: req.user.email });
+  try{
+    const currentFaculty = await Faculty.findOne({ email: req.user.email });
   if (!currentFaculty) {
     return res.json({ success: false, msg: "invalid email" });
   }
@@ -51,7 +57,11 @@ router.get("/faculty", auth, async (req, res) => {
       name,
     },
     success: true,
-  });
+  });}
+  catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //api used for updating user

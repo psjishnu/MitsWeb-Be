@@ -55,7 +55,8 @@ router.get("/gatepass", facultyAuth, async (req, res) => {
 
 //to either update or reject a gatepass by faculty
 router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
-  let { email } = req.user;
+  try{
+    let { email } = req.user;
   const _id = req.params._id;
   const action = Number(req.params.action);
   if (!(action === 1 || action === -1) || !isValidObjectId(_id)) {
@@ -74,12 +75,17 @@ router.get("/gatepass/:_id/:action", facultyAuth, async (req, res) => {
   gatepass.status = action;
   await gatepass.save();
   const msg = action === 1 ? "Gatepass approved" : "Gatepass rejected";
-  return res.json({ msg, success: true });
+  return res.json({ msg, success: true });}
+  catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //get the gatepass by id
 router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
-  let { email } = req.user;
+  try{
+    let { email } = req.user;
   const _id = req.params._id;
   if (!isValidObjectId(_id)) {
     return res.json({ success: false, msg: "Invalid id" });
@@ -102,7 +108,11 @@ router.get("/gatepass/:_id", facultyAuth, async (req, res) => {
     _id: gatepass._id,
     status: gatepass.status,
   };
-  return res.json({ success: true, data });
+  return res.json({ success: true, data });}
+  catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //get all leaves

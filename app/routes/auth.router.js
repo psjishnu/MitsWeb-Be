@@ -24,7 +24,8 @@ router.get("/", (req, res) => {
 
 //signup route
 router.post("/signup", validateRegistration, async (req, res) => {
-  var { name, email, password, confirm, number, type, oldpassword } = req.body;
+  try{
+    var { name, email, password, confirm, number, type, oldpassword } = req.body;
 
   if (password !== confirm) {
     return res.json({ error: "Password not same", success: false });
@@ -127,12 +128,16 @@ router.post("/signup", validateRegistration, async (req, res) => {
     })
     .catch((err) => {
       console.log(err);
-    });
+    });}catch (err) {
+      console.log(`error:${err.message}`.red);
+      return res.json({ success: false, msg: err.message });
+    }
 });
 
 //signin route
 router.post("/signin", validateLogin, async (req, res) => {
-  const { email, password } = req.body;
+  try{
+    const { email, password } = req.body;
 
   await User.findOne({ email: email }).then(async (savedUser) => {
     if (!savedUser) {
@@ -203,12 +208,16 @@ router.post("/signin", validateLogin, async (req, res) => {
       .catch((err) => {
         console.log(err);
       });
-  });
+  });}catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 //for google login
 router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
-  const tokenVerifier = async (token) => {
+  try{
+    const tokenVerifier = async (token) => {
     const verify = async () => {
       const CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
       const client = new AuthValidator.OAuth2Client(CLIENT_ID);
@@ -278,7 +287,10 @@ router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
         msg: "Invalid User",
       });
     }
-  });
+  });}catch (err) {
+    console.log(`error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
 });
 
 module.exports = router;
