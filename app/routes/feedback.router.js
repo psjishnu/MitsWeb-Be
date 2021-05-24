@@ -7,6 +7,8 @@ const Stats = require("../models/stats.model");
 const {
   validateaddFeedbackType,
   validateupdateFeedbackType,
+  validateGetquestions,
+  validatepostFeedback,
 } = require("./validation/feedback.validation");
 const FeedbackQuestions = require("./../models/feedbackquestions.model");
 const Feedback = require("./../models/feedback.model");
@@ -139,37 +141,60 @@ router.post("/questions", adminAuth, async (req, res) => {
 });
 
 //to get all the feedback category questions
-router.get("/questions/:_id", studentAuth, async (req, res) => {
-  try {
-    const { _id } = req.params;
-    if (!isValidObjectId(_id)) {
-      return res.json({ success: false, msg: "Error" });
+router.post(
+  "/questions/:_id",
+  validateGetquestions,
+  studentAuth,
+  async (req, res) => {
+    try {
+      const { _id } = req.params;
+      const { email } = req.user;
+      const { faculty } = req.body;
+      if (!isValidObjectId(_id)) {
+        return res.json({ success: false, msg: "Error" });
+      }
+      const givenFeedback = await Feedback.findOne({
+        user: email,
+        questionSet: _id,
+        faculty,
+      });
+      if (givenFeedback) {
+        return res.json({
+          success: true,
+          questions: { questions: [] },
+          msg: "You already responded to this survey",
+        });
+      }
+      const questions = await FeedbackQuestions.findOne({
+        category: _id,
+      }).populate({
+        path: "category",
+      });
+      if (!questions) {
+        return res.json({ success: false, msg: "Error" });
+      }
+      res.json({ success: true, questions, msg: "" });
+    } catch (err) {
+      console.log(
+        `Couldn't get feedback category questions with error: ${err.message}`
+          .red
+      );
+      return res.json({ success: false, msg: err.message });
     }
-    const questions = await FeedbackQuestions.find({
-      category: _id,
-    }).populate({
-      path: "category",
-    });
-    if (!questions) {
-      return res.json({ success: false, msg: "Error" });
-    }
-    res.json({ success: true, data: questions });
-  } catch (err) {
-    console.log(
-      `Couldn't get feedback category questions with error: ${err.message}`.red
-    );
-    return res.json({ success: false, msg: err.message });
   }
-});
+);
 
 /* 
 ----------------------------Store answer for feedback api's---------------------------------
 */
 
 //to get the answer and store
-router.post("/", studentAuth, async (req, res) => {
+router.post("/", validatepostFeedback, studentAuth, async (req, res) => {
   try {
     const { questionSet, faculty, feedback } = req.body;
+    if (!isValidObjectId(questionSet)) {
+      return res.json({ msg: "invalid id", success: false });
+    }
     const user = req.user.email;
 
     feedback_received = new Feedback({
@@ -178,9 +203,8 @@ router.post("/", studentAuth, async (req, res) => {
       feedback,
       user,
     });
-
-    await feedback_received.save();
-    res.json({ success: true, data: feedback_received });
+    //  await feedback_received.save();
+    res.json({ success: true, msg: "Feedback submitted" });
   } catch (err) {
     console.log(`Couldn't save feedback with error: ${err.message}`.red);
     return res.json({ success: false, msg: err.message });
