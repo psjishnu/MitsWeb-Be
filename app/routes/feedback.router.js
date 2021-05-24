@@ -8,7 +8,7 @@ const {
   validateaddFeedbackType,
   validateupdateFeedbackType,
   validateGetquestions,
-  validatepostFeedback,
+  validatepostFeedback,validatequestionFeedbackType
 } = require("./validation/feedback.validation");
 const FeedbackQuestions = require("./../models/feedbackquestions.model");
 const Feedback = require("./../models/feedback.model");
@@ -123,7 +123,7 @@ router.put(
 }
     No need to send uuid , just send in the above format
 */
-router.post("/questions", adminAuth, async (req, res) => {
+router.post("/questions",validatequestionFeedbackType, adminAuth, async (req, res) => {
   try {
     const { category, questions } = req.body;
     const feedbackQuestions = new FeedbackQuestions({
