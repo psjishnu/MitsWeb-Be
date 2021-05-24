@@ -203,7 +203,7 @@ router.post("/", validatepostFeedback, studentAuth, async (req, res) => {
       feedback,
       user,
     });
-    //  await feedback_received.save();
+    await feedback_received.save();
     res.json({ success: true, msg: "Feedback submitted" });
   } catch (err) {
     console.log(`Couldn't save feedback with error: ${err.message}`.red);
