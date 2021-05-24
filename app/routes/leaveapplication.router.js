@@ -27,7 +27,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 //create a new leave application request
-router.post("/request", auth, validateCreation, async (req, res) => {
+router.post("/request",  validateCreation,auth, async (req, res) => {
   try {
     const user = await Student.findOne({ email: req.user.email });
     if (!user) {
@@ -60,7 +60,7 @@ router.post("/request", auth, validateCreation, async (req, res) => {
 });
 
 //cancel a leave application submission
-router.post("/cancel", auth, validateDeletion, async (req, res) => {
+router.post("/cancel",  validateDeletion,auth, async (req, res) => {
   try {
     const email = req.user.email;
     if (!isValidObjectId(req.body.deleteId)) {
@@ -83,7 +83,7 @@ router.post("/cancel", auth, validateDeletion, async (req, res) => {
 });
 
 //api end point to edit the leave application
-router.post("/edit", auth, validateEdit, async (req, res) => {
+router.post("/edit",  validateEdit,auth, async (req, res) => {
   try {
     const { email } = req.user;
     const { _id, description, toDate, type, fromTime, toTime, date } = req.body;

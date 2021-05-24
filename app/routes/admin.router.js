@@ -25,6 +25,7 @@ const {
   validateDeletion,
   validateAddUser,
   validateAddUsers,
+  validateaddTimetable,
 } = require("./validation/admin.validation");
 const {
   validateSubjectCreation,
@@ -414,7 +415,7 @@ router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
 */
 
 //to create a new time table
-router.post("/timetable", adminAuth, async (req, res) => {
+router.post("/timetable", validateaddTimetable,adminAuth, async (req, res) => {
   try {
     const { semesterDepartment, periodTimings } = req.body;
     const timeTable = new Timetable({
