@@ -26,7 +26,7 @@ let addUsersScheme = Joi.object({
 let addTimetableScheme = Joi.object({
   semesterDepartment: Joi.any().required(),
   periodTimings: Joi.any().required(),
-})
+});
 
 let addUserSchema = Joi.object({
   email: Joi.string().required().email(),

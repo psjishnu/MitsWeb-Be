@@ -8,7 +8,8 @@ const {
   validateaddFeedbackType,
   validateupdateFeedbackType,
   validateGetquestions,
-  validatepostFeedback,validatequestionFeedbackType
+  validatepostFeedback,
+  validatequestionFeedbackType,
 } = require("./validation/feedback.validation");
 const FeedbackQuestions = require("./../models/feedbackquestions.model");
 const Feedback = require("./../models/feedback.model");
@@ -123,22 +124,28 @@ router.put(
 }
     No need to send uuid , just send in the above format
 */
-router.post("/questions",validatequestionFeedbackType, adminAuth, async (req, res) => {
-  try {
-    const { category, questions } = req.body;
-    const feedbackQuestions = new FeedbackQuestions({
-      category,
-      questions,
-    });
-    await feedbackQuestions.save();
-    res.json({ success: true, data: feedbackQuestions });
-  } catch (err) {
-    console.log(
-      `Couldn't save feedback category questions with error: ${err.message}`.red
-    );
-    return res.json({ success: false, msg: err.message });
+router.post(
+  "/questions",
+  validatequestionFeedbackType,
+  adminAuth,
+  async (req, res) => {
+    try {
+      const { category, questions } = req.body;
+      const feedbackQuestions = new FeedbackQuestions({
+        category,
+        questions,
+      });
+      await feedbackQuestions.save();
+      res.json({ success: true, data: feedbackQuestions });
+    } catch (err) {
+      console.log(
+        `Couldn't save feedback category questions with error: ${err.message}`
+          .red
+      );
+      return res.json({ success: false, msg: err.message });
+    }
   }
-});
+);
 
 //to get all the feedback category questions
 router.post(

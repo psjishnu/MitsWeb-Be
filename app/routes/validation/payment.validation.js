@@ -9,7 +9,7 @@ const createPayTypeScheme = Joi.object({
 const processScheme = Joi.object({
   paymentType: Joi.string().required(),
   amount: Joi.number().required(),
-})
+});
 
 const validatePayTypeCreation = (req, res, next) => {
   const { error } = createPayTypeScheme.validate(req.body);

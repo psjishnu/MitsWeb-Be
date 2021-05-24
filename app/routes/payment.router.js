@@ -4,7 +4,10 @@ const { adminAuth } = require("../functions/jwt");
 const { auth } = require("../functions/jwt");
 const PayType = require("../models/paytypes.model");
 const Payment = require("../models/payment.model");
-const { validatePayTypeCreation,validateProcess } = require("./validation/payment.validation");
+const {
+  validatePayTypeCreation,
+  validateProcess,
+} = require("./validation/payment.validation");
 const Razorpay = require("razorpay");
 const shortid = require("shortid");
 
@@ -49,7 +52,7 @@ router.get("/types", auth, async (req, res) => {
 });
 
 // to process the payment
-router.post("/razorpay", validateProcess,auth, async (req, res) => {
+router.post("/razorpay", validateProcess, auth, async (req, res) => {
   try {
     const { paymentType, amount } = req.body;
     const { email } = req.user;
