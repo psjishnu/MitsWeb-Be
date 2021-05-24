@@ -75,7 +75,7 @@ router.get("/view/:id", async (req, res) => {
 });
 
 //to cancel a gatepass request
-router.post("/cancel", auth, validateDeletion, async (req, res) => {
+router.post("/cancel", validateDeletion, auth, async (req, res) => {
   try {
     const email = req.user.email;
     if (!isValidObjectId(req.body.deleteId)) {
@@ -97,7 +97,7 @@ router.post("/cancel", auth, validateDeletion, async (req, res) => {
 });
 
 //create a gate pass request
-router.post("/request", auth, validateCreation, async (req, res) => {
+router.post("/request", validateCreation, auth, async (req, res) => {
   try {
     const user = await Student.findOne({ email: req.user.email });
     const department = user["department"];
@@ -123,7 +123,7 @@ router.post("/request", auth, validateCreation, async (req, res) => {
 });
 
 //edit a gatepass request
-router.post("/edit", auth, validateEdit, async (req, res) => {
+router.post("/edit", validateEdit, auth, async (req, res) => {
   try {
     const { email } = req.user;
     const { description, _id, time } = req.body;

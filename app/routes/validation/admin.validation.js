@@ -23,6 +23,11 @@ let addUsersScheme = Joi.object({
   data: Joi.any().required(),
 });
 
+let addTimetableScheme = Joi.object({
+  semesterDepartment: Joi.any().required(),
+  periodTimings: Joi.any().required(),
+});
+
 let addUserSchema = Joi.object({
   email: Joi.string().required().email(),
   type: Joi.string().required(),
@@ -36,6 +41,11 @@ let addUserSchema = Joi.object({
 
 const validateDeletion = (req, res, next) => {
   const { error, value } = deleteSchema.validate(req.body);
+  error ? res.json({ msg: error.details[0].message, success: false }) : next();
+};
+
+const validateaddTimetable = (req, res, next) => {
+  const { error, value } = addTimetableScheme.validate(req.body);
   error ? res.json({ msg: error.details[0].message, success: false }) : next();
 };
 
@@ -59,4 +69,5 @@ module.exports = {
   validateDeletion,
   validateAddUser,
   validateAddUsers,
+  validateaddTimetable,
 };
