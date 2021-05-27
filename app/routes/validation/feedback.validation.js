@@ -15,9 +15,7 @@ const getQuestionsScheme = Joi.object({
 const questionValidationScheme = Joi.object({
   category: Joi.string().required(),
   questions: Joi.any().required(),
-}
-
-)
+});
 const postFeedbackScheme = Joi.object({
   questionSet: Joi.string().required(),
   faculty: Joi.string().required(),
