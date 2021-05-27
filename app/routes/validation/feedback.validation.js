@@ -10,6 +10,7 @@ const updateFeedbackTypeScheme = Joi.object({
 
 const getQuestionsScheme = Joi.object({
   faculty: Joi.string().required(),
+  code: Joi.string().required(),
 });
 
 const questionValidationScheme = Joi.object({
@@ -20,6 +21,7 @@ const postFeedbackScheme = Joi.object({
   questionSet: Joi.string().required(),
   faculty: Joi.string().required(),
   feedback: Joi.any().required(),
+  code: Joi.any().required(),
 });
 
 const validateaddFeedbackType = (req, res, next) => {

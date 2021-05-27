@@ -147,7 +147,7 @@ router.post(
     try {
       const { _id } = req.params;
       const { email } = req.user;
-      const { faculty } = req.body;
+      const { faculty, code } = req.body;
       if (!isValidObjectId(_id)) {
         return res.json({ success: false, msg: "Error" });
       }
@@ -155,6 +155,7 @@ router.post(
         user: email,
         questionSet: _id,
         faculty,
+        code,
       });
       if (givenFeedback) {
         return res.json({
@@ -189,7 +190,7 @@ router.post(
 //to get the answer and store
 router.post("/", validatepostFeedback, studentAuth, async (req, res) => {
   try {
-    const { questionSet, faculty, feedback } = req.body;
+    const { questionSet, faculty, feedback, code } = req.body;
     if (!isValidObjectId(questionSet)) {
       return res.json({ msg: "invalid id", success: false });
     }
@@ -200,6 +201,7 @@ router.post("/", validatepostFeedback, studentAuth, async (req, res) => {
       faculty,
       feedback,
       user,
+      code,
     });
     await feedback_received.save();
     res.json({ success: true, msg: "Feedback submitted" });

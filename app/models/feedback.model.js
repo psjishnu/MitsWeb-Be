@@ -19,6 +19,11 @@ const feedbackSchema = new mongoose.Schema({
     ref: "Faculty",
     required: true,
   },
+  code: {
+    type: String,
+    ref: "Subject",
+    required: true,
+  },
 
   feedback: [
     {
