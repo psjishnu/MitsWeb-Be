@@ -6,6 +6,7 @@ const User = require("../models/user.model");
 const Faculty = require("../models/faculty.model");
 const { validateUpdate } = require("./validation/user.validation");
 const Stats = require("../models/stats.model");
+const Student = require("../models/student.model");
 
 //api to get the current user
 router.get("/getUser", auth, async (req, res) => {
@@ -37,15 +38,8 @@ router.get("/faculty", auth, async (req, res) => {
     }
     console.log(`Faculty retrieved`, `${currentFaculty.email}`.blue.bold);
     delete currentFaculty.password;
-    const {
-      active,
-      registered,
-      isHOD,
-      department,
-      email,
-      mobile,
-      name,
-    } = currentFaculty;
+    const { active, registered, isHOD, department, email, mobile, name } =
+      currentFaculty;
     res.json({
       data: {
         active,
@@ -67,37 +61,45 @@ router.get("/faculty", auth, async (req, res) => {
 //api used for updating user
 router.post("/updateuser", validateUpdate, auth, async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.user.email });
+    const { email } = req.user;
 
+    const user = await User.findOne({ email });
+    if (!user.type === "student") {
+      return res.json({ success: false, msg: "Error" });
+    }
+    let student = await Student.findOne({ email });
+    if (!student) {
+      return res.json({ success: false, msg: "Student not found" });
+    }
+    console.log(student);
     const data = req.body;
+    console.log(data);
 
     let Error = false;
-    if (user) {
-      user.name = data.name;
-      user.mobile = data.number;
-      user.parentDetails = data.parentDetails;
-      user.address = data.address;
-      user.dob = data.dob;
-      user.bloodGroup = data.bloodGroup;
-      if (data.password !== "") {
-        if (data.password !== data.confirm) {
-          Error = true;
-        } else {
-          user.password = await bcrypt.hash(data.password, 12);
-        }
-      }
-      if (!Error) {
-        await user.save();
-        return res.json({
-          message: "User updated successfully",
-          success: true,
-        });
+    student.name = data.name;
+    student.mobile = data.number;
+    student.parentDetails = data.parentDetails;
+    student.address = data.address;
+    student.dob = data.dob;
+    student.bloodGroup = data.bloodGroup;
+    if (data.password !== "") {
+      if (data.password !== data.confirm) {
+        Error = true;
       } else {
-        return res.json({
-          message: "Error",
-          success: false,
-        });
+        student.password = await bcrypt.hash(data.password, 12);
       }
+    }
+    if (!Error) {
+      await student.save();
+      return res.json({
+        message: "User updated successfully",
+        success: true,
+      });
+    } else {
+      return res.json({
+        message: "Error",
+        success: false,
+      });
     }
   } catch (e) {
     return res.json({
@@ -106,5 +108,13 @@ router.post("/updateuser", validateUpdate, auth, async (req, res) => {
     });
   }
 });
-
+//get logged in student
+router.get("/student", auth, async (req, res) => {
+  const { email } = req.user;
+  const student = await Student.findOne({ email }).select("-password");
+  if (!student) {
+    return res.json({ success: false, msg: "Error..!" });
+  }
+  return res.json({ data: student, success: true });
+});
 module.exports = router;
