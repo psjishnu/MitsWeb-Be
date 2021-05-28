@@ -1,63 +1,31 @@
 const express = require("express");
 const router = express.Router();
-const path = require("path");
-const multer = require("multer");
-const upload = multer().array("imgCollection");
-const { v4: uuidv4 } = require("uuid");
+const Student = require("../models/student.model");
+const { studentAuth } = require("../functions/jwt");
+const { fileUploader } = require("../functions/fileupload");
 
-let urls = [];
-
-router.post("/", function (req, res, next) {
-  const { Storage } = require("@google-cloud/storage");
-
-  const storage = new Storage({
-    projectId: process.env.PROJECT_ID,
-    keyFilename: path.join(__dirname, "../../creds.json"),
-  });
-
+router.post("/", studentAuth, async (req, res) => {
   try {
-    async function uploadFile(file, folder) {
-      let bucketName = process.env.BUCKET_NAME;
-      let bucket = storage.bucket(bucketName);
-      const unique_id = uuidv4();
-      let newFileName =
-        "Profile Pictures" + "/" + `${unique_id + file.originalname}`;
-
-      let fileUpload = bucket.file(newFileName);
-      const blobStream = fileUpload.createWriteStream({
-        metadata: {
-          contentType: file.mimetype,
-        },
-      });
-
-      blobStream.on("error", (error) => {
-        console.log(
-          "Something is wrong! Unable to upload at the moment." + error
-        );
-      });
-
-      blobStream.on("finish", () => {
-        const url = `https://storage.googleapis.com/${bucket.name}/${fileUpload.name}`;
-        console.log(url);
-        urls.push(url);
-      });
-
-      blobStream.end(file.buffer);
+    const { email } = req.user;
+    const student = await Student.findOne({ email });
+    if (!student) {
+      return res.json({ msg: "Error", success: false });
     }
 
-    upload(req, res, function (err) {
-      let files = req.files;
-      for (let file in files) {
-        uploadFile(files[file], req.body.folder);
+    const returnURL = async (link) => {
+      if (!link) {
+        return res.json({ msg: "Error", success: false });
       }
-
-      if (err) {
-        return res.end("Error uploading file." + err);
-      }
-      res.end("File is uploaded");
-    });
+      student.photo = link;
+      await student.save();
+      return res.json({ success: true, msg: "Photo updated" });
+    };
+    fileUploader(req, res, returnURL);
   } catch (err) {
-    res.send(err);
+    console.log(
+      `Couldn't get feedback categories with error: ${err.message}`.red
+    );
+    return res.json({ success: false, msg: err.message });
   }
 });
 
