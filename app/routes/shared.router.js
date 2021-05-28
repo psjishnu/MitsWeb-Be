@@ -3,7 +3,16 @@ const router = express.Router();
 const Subject = require("../models/subject.model");
 const ExamType = require("../models/examtype.model");
 const Timetable = require("../models/timetable.model");
+const CourseMaterial = require("../models/coursematerial.model");
 const { isValidObjectId } = require("mongoose");
+const { auth } = require("./../functions/jwt");
+const multer = require("multer");
+const upload = multer({
+  limits: {
+    fileSize: 5 * 1024 * 1024, // no larger than 5mb
+  },
+});
+const { UploadToGCP } = require("../functions/gcpupload");
 
 /* 
 ----------------------------Exam Api's---------------------------------
@@ -86,5 +95,58 @@ router.get("/timetable/:_id", async (req, res) => {
     return res.json({ success: false, msg: err.message });
   }
 });
+
+/* 
+----------------------------Course Material Distribution Api's---------------------------------
+*/
+
+// to share the course material
+router.post(
+  "/resources",
+  auth,
+  upload.array("resources", 12),
+  async (req, res) => {
+    try {
+      const files = req.files;
+      if (!files) {
+        res.json({ success: false, msg: "No files were provided!!" });
+        return;
+      }
+
+      let resourceURLS = [];
+      const FOLDER_NAME = "Course_Materials";
+
+      for (let file of files) {
+        const imageUrl = await UploadToGCP(file, FOLDER_NAME);
+        resourceURLS.push({ url: imageUrl });
+      }
+
+      const { department, semester, subject, type, topic, description } =
+        req.body;
+      const userEmail = req.user.email;
+
+      const coursematerial = new CourseMaterial({
+        department,
+        semester,
+        subject,
+        type,
+        resources: resourceURLS,
+        topic,
+        description,
+        uploadBy: userEmail,
+      });
+      await coursematerial.save();
+      return res.json({
+        data: coursematerial,
+        success: true,
+      });
+    } catch (err) {
+      console.log(
+        `Failed to save course resources with error:${err.message}`.red
+      );
+      return res.json({ success: false, msg: err.message });
+    }
+  }
+);
 
 module.exports = router;
