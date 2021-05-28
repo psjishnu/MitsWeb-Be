@@ -71,10 +71,7 @@ router.post("/updateuser", validateUpdate, auth, async (req, res) => {
     if (!student) {
       return res.json({ success: false, msg: "Student not found" });
     }
-    console.log(student);
     const data = req.body;
-    console.log(data);
-
     let Error = false;
     student.name = data.name;
     student.mobile = data.number;
