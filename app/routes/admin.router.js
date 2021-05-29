@@ -343,14 +343,8 @@ router.post(
   adminAuth,
   async (req, res) => {
     try {
-      const {
-        name,
-        code,
-        department,
-        semester,
-        courseType,
-        taughtBy,
-      } = req.body;
+      const { name, code, department, semester, courseType, taughtBy } =
+        req.body;
 
       const result = await Subject.findOne({ code, department, semester });
       if (result) {
@@ -379,15 +373,8 @@ router.post(
 //edit subject information
 router.put("/subject", adminAuth, validateSubjectEdit, async (req, res) => {
   try {
-    const {
-      _id,
-      name,
-      code,
-      department,
-      semester,
-      courseType,
-      taughtBy,
-    } = req.body;
+    const { _id, name, code, department, semester, courseType, taughtBy } =
+      req.body;
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid Id" });
     }
@@ -574,9 +561,8 @@ router.post("/addusers", validateAddUsers, adminAuth, async (req, res) => {
     } else if (type === "faculty") {
       for (let i = 0; i < data.length; i++) {
         if (validateFaculty(data[i])) {
-          const { email, password, department, joiningYear, internalId } = data[
-            i
-          ];
+          const { email, password, department, joiningYear, internalId } =
+            data[i];
           const user = await User.findOne({ email });
           if (!user) {
             let facultyId = generateFacultyId(joiningYear, internalId);

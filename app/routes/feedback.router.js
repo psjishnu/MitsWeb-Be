@@ -11,8 +11,9 @@ const {
   validatepostFeedback,
   validatequestionFeedbackType,
 } = require("./validation/feedback.validation");
-const FeedbackQuestions = require("./../models/feedbackquestions.model");
-const Feedback = require("./../models/feedback.model");
+const FeedbackQuestions = require("../models/feedbackquestions.model");
+const Feedback = require("../models/feedback.model");
+const Student = require("../models/student.model");
 
 /* 
 ----------------------------Create Feedback Category Api's---------------------------------
@@ -211,4 +212,112 @@ router.post("/", validatepostFeedback, studentAuth, async (req, res) => {
   }
 });
 
+router.get("/isvalid/:_id", adminAuth, async (req, res) => {
+  try {
+    const { _id } = req.params;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    const valid = await FeedbackCategory.findOne({ _id }).select("category");
+    if (!valid) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    return res.json({ success: true, msg: "Valid id", data: valid });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
+router.post("/getfeedback/:id", adminAuth, async (req, res) => {
+  try {
+    const { currentYear, department } = req.body;
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    const student = await Student.find({
+      department: department.toUpperCase(),
+      currentYear: Number(currentYear),
+    }).select("email");
+    if (!student) {
+      return res.json({ msg: "No studentlist", success: false });
+    }
+    let emailArr = [];
+    for (let i = 0; i < student.length; i++) {
+      emailArr = emailArr.concat(student[i].email);
+    }
+    const feedbacks = await Feedback.find({
+      questionSet: id,
+      $or: [{ user: emailArr }],
+    });
+    const questionList = await FeedbackQuestions.findOne({
+      category: id,
+    }).select("questions");
+    if (!feedbacks || !questionList) {
+      return res.json({ msg: "No feedback", success: false });
+    }
+    var mapToquestion = {};
+    const { questions } = questionList;
+    for (let i = 0; i < questions.length; i++) {
+      mapToquestion = {
+        ...mapToquestion,
+        [questions[i]._id]: questions[i].question,
+      };
+    }
+    var feedbackOBJ = {};
+    for (let i = 0; i < feedbacks.length; i++) {
+      if (
+        feedbackOBJ[feedbacks[i].faculty + "--" + feedbacks[i].code] ===
+        undefined
+      ) {
+        feedbackOBJ = {
+          ...feedbackOBJ,
+          [feedbacks[i].faculty + "--" + feedbacks[i].code]:
+            feedbacks[i].feedback,
+        };
+      } else {
+        feedbackOBJ = {
+          ...feedbackOBJ,
+          [feedbacks[i].faculty + "--" + feedbacks[i].code]: feedbackOBJ[
+            feedbacks[i].faculty + "--" + feedbacks[i].code
+          ].concat(feedbacks[i].feedback),
+        };
+      }
+    }
+    const types = Object.keys(feedbackOBJ);
+    // console.log(questionList);
+    const processList = (list) => {
+      let listObj = {};
+      for (let i = 0; i < list.length; i++) {
+        if (listObj[list[i].question] === undefined) {
+          listObj = {
+            ...listObj,
+            [list[i].question]: [
+              mapToquestion[list[i].question],
+              list[i].answer,
+            ],
+          };
+        } else {
+          listObj = {
+            ...listObj,
+            [list[i].question]: listObj[list[i].question].concat(
+              list[i].answer
+            ),
+          };
+        }
+      }
+      return listObj;
+    };
+    let finalArr = [];
+    for (let i = 0; i < types.length; i++) {
+      const answerList = feedbackOBJ[types[i]];
+      const result = processList(answerList);
+      finalArr = finalArr.concat({ [types[i]]: result });
+    }
+    return res.json({ success: true, data: finalArr });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
+  }
+});
 module.exports = router;
