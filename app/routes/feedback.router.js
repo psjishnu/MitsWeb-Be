@@ -211,4 +211,19 @@ router.post("/", validatepostFeedback, studentAuth, async (req, res) => {
   }
 });
 
+router.get("/isvalid/:_id", adminAuth, async (req, res) => {
+  try {
+    const { _id } = req.params;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    const valid = await FeedbackCategory.findOne({ _id });
+    if (!valid) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    return res.json({ success: true, msg: "Valid id" });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
 module.exports = router;
