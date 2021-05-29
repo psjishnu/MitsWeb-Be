@@ -11,8 +11,9 @@ const {
   validatepostFeedback,
   validatequestionFeedbackType,
 } = require("./validation/feedback.validation");
-const FeedbackQuestions = require("./../models/feedbackquestions.model");
-const Feedback = require("./../models/feedback.model");
+const FeedbackQuestions = require("../models/feedbackquestions.model");
+const Feedback = require("../models/feedback.model");
+const Student = require("../models/student.model");
 
 /* 
 ----------------------------Create Feedback Category Api's---------------------------------
@@ -217,12 +218,66 @@ router.get("/isvalid/:_id", adminAuth, async (req, res) => {
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid id" });
     }
-    const valid = await FeedbackCategory.findOne({ _id });
+    const valid = await FeedbackCategory.findOne({ _id }).select("category");
     if (!valid) {
       return res.json({ success: false, msg: "Invalid id" });
     }
-    return res.json({ success: true, msg: "Valid id" });
+    return res.json({ success: true, msg: "Valid id", data: valid });
   } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
+router.post("/getfeedback/:id", adminAuth, async (req, res) => {
+  try {
+    const { currentYear, department } = req.body;
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return res.json({ success: false, msg: "Invalid id" });
+    }
+    const student = await Student.find({
+      department: department.toUpperCase(),
+      currentYear: Number(currentYear),
+    }).select("email");
+    if (!student) {
+      return res.json({ msg: "No studentlist", success: false });
+    }
+    let emailArr = [];
+    for (let i = 0; i < student.length; i++) {
+      emailArr = emailArr.concat(student[i].email);
+    }
+    const feedbacks = await Feedback.find({
+      questionSet: id,
+      $or: [{ user: emailArr }],
+    });
+    if (!feedbacks) {
+      return res.json({ msg: "No feedback", success: false });
+    }
+    var feedbackOBJ = {};
+    for (let i = 0; i < feedbacks.length; i++) {
+      // console.log(newObj);
+      if (
+        feedbackOBJ[feedbacks[i].faculty + "--" + feedbacks[i].code] ===
+        undefined
+      ) {
+        feedbackOBJ = {
+          ...feedbackOBJ,
+          [feedbacks[i].faculty + "--" + feedbacks[i].code]: [
+            feedbacks[i].feedback,
+          ],
+        };
+      } else {
+        feedbackOBJ = {
+          ...feedbackOBJ,
+          [feedbacks[i].faculty + "--" + feedbacks[i].code]: feedbackOBJ[
+            feedbacks[i].faculty + "--" + feedbacks[i].code
+          ].concat(feedbacks[i].feedback),
+        };
+      }
+    }
+    return res.json({ success: true, data: feedbackOBJ });
+  } catch (err) {
+    console.log(err);
     return res.json({ success: false, msg: "Error" });
   }
 });
