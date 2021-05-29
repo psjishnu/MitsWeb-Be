@@ -108,7 +108,7 @@ router.post(
   async (req, res) => {
     try {
       const files = req.files;
-      if (!files) {
+      if (!(Array.isArray(files) && files.length)) {
         res.json({ success: false, msg: "No files were provided!!" });
         return;
       }
