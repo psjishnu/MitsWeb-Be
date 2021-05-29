@@ -250,21 +250,30 @@ router.post("/getfeedback/:id", adminAuth, async (req, res) => {
       questionSet: id,
       $or: [{ user: emailArr }],
     });
-    if (!feedbacks) {
+    const questionList = await FeedbackQuestions.findOne({
+      category: id,
+    }).select("questions");
+    if (!feedbacks || !questionList) {
       return res.json({ msg: "No feedback", success: false });
+    }
+    var mapToquestion = {};
+    const { questions } = questionList;
+    for (let i = 0; i < questions.length; i++) {
+      mapToquestion = {
+        ...mapToquestion,
+        [questions[i]._id]: questions[i].question,
+      };
     }
     var feedbackOBJ = {};
     for (let i = 0; i < feedbacks.length; i++) {
-      // console.log(newObj);
       if (
         feedbackOBJ[feedbacks[i].faculty + "--" + feedbacks[i].code] ===
         undefined
       ) {
         feedbackOBJ = {
           ...feedbackOBJ,
-          [feedbacks[i].faculty + "--" + feedbacks[i].code]: [
+          [feedbacks[i].faculty + "--" + feedbacks[i].code]:
             feedbacks[i].feedback,
-          ],
         };
       } else {
         feedbackOBJ = {
@@ -275,7 +284,37 @@ router.post("/getfeedback/:id", adminAuth, async (req, res) => {
         };
       }
     }
-    return res.json({ success: true, data: feedbackOBJ });
+    const types = Object.keys(feedbackOBJ);
+    // console.log(questionList);
+    const processList = (list) => {
+      let listObj = {};
+      for (let i = 0; i < list.length; i++) {
+        if (listObj[list[i].question] === undefined) {
+          listObj = {
+            ...listObj,
+            [list[i].question]: [
+              mapToquestion[list[i].question],
+              list[i].answer,
+            ],
+          };
+        } else {
+          listObj = {
+            ...listObj,
+            [list[i].question]: listObj[list[i].question].concat(
+              list[i].answer
+            ),
+          };
+        }
+      }
+      return listObj;
+    };
+    let finalArr = [];
+    for (let i = 0; i < types.length; i++) {
+      const answerList = feedbackOBJ[types[i]];
+      const result = processList(answerList);
+      finalArr = finalArr.concat({ [types[i]]: result });
+    }
+    return res.json({ success: true, data: finalArr });
   } catch (err) {
     console.log(err);
     return res.json({ success: false, msg: "Error" });
