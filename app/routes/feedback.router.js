@@ -10,6 +10,7 @@ const {
   validateGetquestions,
   validatepostFeedback,
   validatequestionFeedbackType,
+  validategetFeedback,
 } = require("./validation/feedback.validation");
 const FeedbackQuestions = require("../models/feedbackquestions.model");
 const Feedback = require("../models/feedback.model");
@@ -228,7 +229,7 @@ router.get("/isvalid/:_id", adminAuth, async (req, res) => {
   }
 });
 
-router.post("/getfeedback/:id", adminAuth, async (req, res) => {
+router.post("/getfeedback/:id",validategetFeedback, adminAuth, async (req, res) => {
   try {
     const { currentYear, department } = req.body;
     const { id } = req.params;
