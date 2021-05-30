@@ -149,4 +149,19 @@ router.post(
   }
 );
 
+//to get the course materials
+router.get("/resources", auth, async (req, res) => {
+  try {
+    const user = req.user.email;
+    const resources = await CourseMaterial.find({ uploadBy: user }).populate({
+      path: "subject",
+      select: ["name", "code"],
+    });
+    res.json({ success: true, data: resources });
+  } catch (err) {
+    console.log(`Failed to get resources with error:${err.message}`.red);
+    res.json({ success: false, msg: err.message });
+  }
+});
+
 module.exports = router;
