@@ -409,6 +409,27 @@ router.post(
         department,
         subjectCode,
       });
+      if (!attendance) {
+        return res.json({ success: false, msg: "Attendance to found" });
+      }
+      const processList = async (list) => {
+        for (let i = 0; i < list.length; i++) {
+          const { email } = list[i];
+          const studentDetails = await Student.findOne({ email }).select(
+            "name studentId"
+          );
+          if (!studentDetails) {
+            list[i] = { ...list[i], name: "", studentId: "" };
+          } else {
+            const { name, studentId } = studentDetails;
+            list[i] = { ...list[i], name, studentId };
+          }
+        }
+      };
+      for (let i = 0; i < attendance.length; i++) {
+        const { attendanceList } = attendance[i];
+        await processList(attendanceList);
+      }
       return res.json({ success: true, data: attendance || [] });
     } catch (err) {
       console.log(err);
@@ -586,13 +607,8 @@ router.get("/exam/:_id/edit", facultyAuth, async (req, res) => {
 
 router.put("/exam", validateExamEdit, facultyAuth, async (req, res) => {
   try {
-    const {
-      _id,
-      date,
-      startTimestamp,
-      endTimestamp,
-      numberOfQuestions,
-    } = req.body;
+    const { _id, date, startTimestamp, endTimestamp, numberOfQuestions } =
+      req.body;
     if (!isValidObjectId(_id)) {
       return res.json({ success: false, msg: "Invalid Id" });
     }
