@@ -22,6 +22,19 @@ const attendanceScheme = new mongoose.Schema({
     type: String,
     required: true,
   },
+
+  module: {
+    type: Number,
+    required: true,
+  },
+  deliveryMode: {
+    type: String,
+    required: true,
+  },
+  topic: {
+    type: String,
+    required: true,
+  },
   attendanceList: { type: Object, required: true },
 });
 

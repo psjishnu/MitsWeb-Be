@@ -362,6 +362,9 @@ router.post(
         semester,
         period,
         attendanceList,
+        module,
+        deliveryMode,
+        topic,
       } = req.body;
       const date = moment(timeStamp).format("MMM Do YY");
 
@@ -385,6 +388,9 @@ router.post(
         semester,
         department,
         attendanceList,
+        module,
+        deliveryMode,
+        topic,
       });
 
       await newAttendance.save();

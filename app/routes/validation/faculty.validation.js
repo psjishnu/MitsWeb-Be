@@ -15,6 +15,9 @@ const addAttendanceScheme = Joi.object({
   semester: Joi.number().required(),
   period: Joi.string().required(),
   attendanceList: Joi.any().required(),
+  deliveryMode: Joi.string().required(),
+  module: Joi.number().required(),
+  topic: Joi.string().required(),
 });
 let getTimetableScheme = Joi.object({
   department: Joi.string().required(),
