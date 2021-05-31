@@ -292,12 +292,25 @@ router.post("/marks", facultyAuth, async (req, res) => {
       exam,
       markList,
     });
-    // await subjectMark.save();
-    return res.json({
-      success: true,
-      msg: "Marks entered.",
-      data: subjectMark,
-    });
+
+    const query = { exam: exam };
+
+    Marks.findOneAndUpdate(
+      query,
+      { markList: markList },
+      { new: true, upsert: true },
+      function (err, doc) {
+        if (err) {
+          console.log(`Failed with error: ${err.message}`.red);
+          return res.json({ success: false, msg: err.message });
+        }
+        return res.json({
+          success: true,
+          msg: "Marks entered.",
+          data: subjectMark,
+        });
+      }
+    );
   } catch (err) {
     console.log(`Failed to enter marks with error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
