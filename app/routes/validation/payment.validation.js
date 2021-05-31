@@ -3,12 +3,15 @@ const Joi = require("joi");
 const createPayTypeScheme = Joi.object({
   type: Joi.string().required(),
   amount: Joi.number().required(),
-  dueDate: Joi.string().required(),
+  date: Joi.string().required(),
+  remarks: Joi.string(),
 });
 
 const processScheme = Joi.object({
   paymentType: Joi.string().required(),
   amount: Joi.number().required(),
+  date: Joi.string(),
+  remarks: Joi.string(),
 });
 
 const validatePayTypeCreation = (req, res, next) => {
