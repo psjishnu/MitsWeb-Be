@@ -23,6 +23,7 @@ const {
   validateGetSubjectExams,
   validateExamEdit,
 } = require("./validation/exam.validation");
+const { fileLoader } = require("ejs");
 
 //api to get the gatepass requests for a particular faculty
 router.get("/gatepass", facultyAuth, async (req, res) => {
@@ -293,12 +294,30 @@ router.post("/marks", facultyAuth, async (req, res) => {
       markList,
     });
 
+    let names = markList.map((markDetails) => {
+      const { name, mark } = markDetails;
+      return name;
+    });
+
     const query = { exam: exam };
+    let filteredResult = [];
+
+    let results = await Marks.findOne(query);
+    if (results !== null && Array.isArray(results.markList)) {
+      filteredResult = results.markList.filter((markDetails) => {
+        const { name } = markDetails;
+        if (!names.includes(name)) return name;
+      });
+    }
+
+    let data = [];
+    data.push(...filteredResult);
+    data.push(...markList);
 
     Marks.findOneAndUpdate(
       query,
-      { markList: markList },
-      { new: true, upsert: true },
+      { markList: data },
+      { upsert: true, new: true },
       function (err, doc) {
         if (err) {
           console.log(`Failed with error: ${err.message}`.red);
@@ -323,6 +342,26 @@ router.get("/marks", async (req, res) => {
     const { examType, studentId } = req.body;
     const results = await Marks.find({ examType, studentId });
     return res.json({ success: true, data: results });
+  } catch (err) {
+    console.log(`Failed to get marks with error:${err.message}`.red);
+    return res.json({ success: false, msg: err.message });
+  }
+});
+
+//to get marks based on exam
+router.get("/marks/:exam", async (req, res) => {
+  try {
+    const exam = req.params.exam;
+    let results = await Marks.findOne({ exam }).select("markList");
+    let finalResult = {};
+    if (results !== null && Array.isArray(results.markList)) {
+      results.markList.map((marksDetails) => {
+        const { name, marks } = marksDetails;
+        finalResult[name] = marks;
+      });
+    }
+
+    return res.json({ success: true, data: finalResult });
   } catch (err) {
     console.log(`Failed to get marks with error:${err.message}`.red);
     return res.json({ success: false, msg: err.message });
