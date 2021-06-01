@@ -176,7 +176,6 @@ router.post("/event", auth, async (req, res) => {
   try {
     const { title, department, semester, start, end, allDay } = req.body;
     const uploadBy = req.user.email;
-
     const user = await User.findOne({ email: uploadBy }).select("type");
 
     if (
@@ -188,6 +187,7 @@ router.post("/event", auth, async (req, res) => {
         msg: "You are not authorized to perform this action",
       });
     }
+
     const event = new Event({
       title,
       end,
