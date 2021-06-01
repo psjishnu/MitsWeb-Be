@@ -1,11 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const Subject = require("../models/subject.model");
+const User = require("../models/user.model");
+const Student = require("../models/student.model");
 const ExamType = require("../models/examtype.model");
 const Timetable = require("../models/timetable.model");
 const CourseMaterial = require("../models/coursematerial.model");
 const { isValidObjectId } = require("mongoose");
-const { auth } = require("./../functions/jwt");
+const { auth, facultyAuth, adminAuth } = require("./../functions/jwt");
 const multer = require("multer");
 const upload = multer({
   limits: {
@@ -13,6 +15,7 @@ const upload = multer({
   },
 });
 const { UploadToGCP } = require("../functions/gcpupload");
+const Event = require("../models/event.model");
 
 /* 
 ----------------------------Exam Api's---------------------------------
@@ -160,6 +163,84 @@ router.get("/resources", auth, async (req, res) => {
     res.json({ success: true, data: resources });
   } catch (err) {
     console.log(`Failed to get resources with error:${err.message}`.red);
+    res.json({ success: false, msg: err.message });
+  }
+});
+
+/* 
+----------------------------Events Calendar Api's---------------------------------
+*/
+
+//to save the events
+router.post("/event", auth, async (req, res) => {
+  try {
+    const { title, department, semester, start, end, allDay } = req.body;
+    const uploadBy = req.user.email;
+    const user = await User.findOne({ email: uploadBy }).select("type");
+
+    if (
+      user === null ||
+      !["faculty", "admin"].includes(user.type.toLowerCase())
+    ) {
+      return res.json({
+        success: false,
+        msg: "You are not authorized to perform this action",
+      });
+    }
+
+    const event = new Event({
+      title,
+      end,
+      start,
+      allDay,
+      uploadBy,
+      department,
+      semester,
+    });
+
+    await event.save();
+    console.log(`Event created with title: ${title}`.blue);
+    res.json({ success: true, data: event });
+  } catch (err) {
+    console.log(`Error saving event: ${err.message}`.red);
+    res.json({ success: false, msg: err.message });
+  }
+});
+
+//to get the list of events
+router.get("/event", auth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const user = await User.findOne({ email });
+
+    if (user !== null) {
+      const type = user.type.toLowerCase();
+      if (type === "admin") {
+        const events = await Event.find({});
+        return res.json({ success: true, data: events });
+      }
+
+      if (type === "faculty") {
+        const events = await Event.find({ uploadBy: email });
+        return res.json({ success: true, data: events });
+      }
+
+      if (type === "student") {
+        const student = await Student.findOne({ email });
+        const { department, currentYear } = student;
+
+        const events = await Event.find({
+          department: { $in: ["all", department] },
+          semester: { $in: [0, currentYear] },
+        });
+
+        return res.json({ success: true, data: events });
+      }
+    }
+
+    res.json({ success: false, msg: "Failed to get events" });
+  } catch (err) {
+    console.log(`Failed to get the events with error: ${err.message}`.red);
     res.json({ success: false, msg: err.message });
   }
 });
