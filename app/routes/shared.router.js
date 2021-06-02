@@ -155,8 +155,42 @@ router.post(
 //to get the course materials
 router.get("/resources", auth, async (req, res) => {
   try {
-    const user = req.user.email;
-    const resources = await CourseMaterial.find({ uploadBy: user }).populate({
+    const email = req.user.email;
+    const user = await User.findOne({ email });
+    let query = { uploadBy: email };
+    if (user !== null) {
+      const type = user.type.toLowerCase();
+      if (type === "student") {
+        const student = await Student.findOne({ email });
+        const { department, currentYear } = student;
+        query = {
+          department,
+          semester: { $in: [currentYear * 2, currentYear * 2 - 1] },
+        };
+      }
+    }
+    const resources = await CourseMaterial.find(query).populate({
+      path: "subject",
+      select: ["name", "code"],
+    });
+    res.json({ success: true, data: resources });
+  } catch (err) {
+    console.log(`Failed to get resources with error:${err.message}`.red);
+    res.json({ success: false, msg: err.message });
+  }
+});
+
+//to get the course materials for the students
+router.get("/resources/student", auth, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const student = await Student.findOne({ email });
+    const { department, currentYear } = student;
+
+    const resources = await CourseMaterial.find({
+      department,
+      currentYear,
+    }).populate({
       path: "subject",
       select: ["name", "code"],
     });
