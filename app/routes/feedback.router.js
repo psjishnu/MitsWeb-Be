@@ -320,4 +320,23 @@ router.post("/getfeedback/:id", adminAuth, async (req, res) => {
     return res.json({ success: false, msg: "Error" });
   }
 });
+
+router.delete("/:_id", adminAuth, async (req, res) => {
+  try {
+    const { _id } = req.params;
+    if (!isValidObjectId(_id)) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    const deleted = await FeedbackCategory.deleteOne({ _id });
+    if (!deleted) {
+      return res.json({ success: false, msg: "Error" });
+    }
+    await FeedbackQuestions.deleteMany({ category: _id });
+    return res.json({ success: true, msg: "Deleted type!" });
+  } catch (err) {
+    console.log(err);
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
 module.exports = router;
