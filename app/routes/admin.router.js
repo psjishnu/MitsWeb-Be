@@ -636,4 +636,18 @@ router.get("/stats/:type/:value", adminAuth, async (req, res) => {
   }
 });
 
+router.get("/stats/payment", adminAuth, async (req, res) => {
+  try {
+    let stats = false;
+    const Stat = await Stats.findOne({});
+    if (Stat) {
+      const { payment } = Stat;
+      stats = payment;
+    }
+    return res.json({ success: true, stats });
+  } catch (err) {
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
 module.exports = router;
