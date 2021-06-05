@@ -3,14 +3,14 @@ const Joi = require("joi");
 const createPayTypeScheme = Joi.object({
   type: Joi.string().required(),
   amount: Joi.number().required(),
-  date: Joi.string().required(),
+  dueDate: Joi.string().required(),
   remarks: Joi.string(),
 });
 
 const processScheme = Joi.object({
   paymentType: Joi.string().required(),
   amount: Joi.number().required(),
-  date: Joi.string(),
+  dueDate: Joi.string(),
   remarks: Joi.string(),
 });
 
