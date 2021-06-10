@@ -8,4 +8,4 @@ env_variables:
     ADMINPASSWORD: "admin"
     RAZPORPAY_KEY_ID: "rzp_test_6iKYRtRehIAgwt"
     RAZORPAY_KEY_SECRET: "P0WT57lYBt3MpsyYBPrwrQci"
-    PROJECT_ID: "neat-encoder-3
+    PROJECT_ID: "neat-encoder-3"

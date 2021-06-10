@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "test:watch": "npm run test -- --watch",
-    "start": "node app.js",
+    "start": "npm install && node app.js",
     "dev": "nodemon app.js",
     "pretty": "prettier **.js  --write"
   },
