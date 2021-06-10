@@ -1,1 +1,11 @@
 runtime: nodejs12
+service: backend
+env_variables:
+    MONGOURI: "mongodb+srv://mitsweb:mitsweb@cluster0.e4hla.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+    PORT: "2310"
+    JWT_SECRET: "heybroarihantkjbjkbfjkabfajfbajbadjkfbefjbfjkbfjkbewfeufjkbbuefyeurcbsackjdabvdajkfbejkvdbdbjfbfjefbejkfebf"
+    RAZORPAY_SECRET: "12345678"
+    ADMINPASSWORD: "admin"
+    RAZPORPAY_KEY_ID: "rzp_test_6iKYRtRehIAgwt"
+    RAZORPAY_KEY_SECRET: "P0WT57lYBt3MpsyYBPrwrQci"
+    PROJECT_ID: "neat-encoder-3
