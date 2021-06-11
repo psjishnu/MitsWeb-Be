@@ -25,15 +25,8 @@ router.get("/", (req, res) => {
 //signup route
 router.post("/signup", validateRegistration, async (req, res) => {
   try {
-    var {
-      name,
-      email,
-      password,
-      confirm,
-      number,
-      type,
-      oldpassword,
-    } = req.body;
+    var { name, email, password, confirm, number, type, oldpassword } =
+      req.body;
 
     if (password !== confirm) {
       return res.json({ error: "Password not same", success: false });
@@ -266,7 +259,7 @@ router.post("/googlelogin", validateGooglelogin, async (req, resp) => {
           user = resp;
         });
       }
-      if (user && user.type == "office") {
+      if (user && user.type == "security") {
         await Security.findOne({ email: res.email }).then((resp) => {
           user = resp;
         });
