@@ -650,4 +650,20 @@ router.get("/stats/payment", adminAuth, async (req, res) => {
   }
 });
 
+router.get("/changeyear", adminAuth, async (req, res) => {
+  try {
+    const student = await Student.find({}).select("currentYear");
+    for (let i = 0; i < student.length; i++) {
+      if (student[i].currentYear < 4) {
+        student[i].currentYear += 1;
+        await student[i].save();
+      }
+    }
+    return res.json({ success: true, msg: "Year updated" });
+  } catch (err) {
+    console.log(`${err}`.red);
+    return res.json({ success: false, msg: "Error" });
+  }
+});
+
 module.exports = router;
